@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const expressJwt = require('express-jwt')
-const config = require('./../config')
+const config = require('./../config');
+const { connect } = require('pm2');
 
 exports.addOrder = (req, res, next) => {
     var {
@@ -34,10 +35,36 @@ exports.addOrder = (req, res, next) => {
                                             if(err){
                                                 return next(err)
                                             }else{
-                                                res.json({
-                                                    success: "success",
-                                                    message: results,
-                                                    message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+                                                console.log(results)
+                                                // res.json({
+                                                //     success: "success",
+                                                //     message: results,
+                                                //     message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+                                                // })
+                                                var idOrders  = results.insertId
+                                                req.getConnection((err, connection) => {
+                                                    if(err) return next(err)
+                                            
+                                                    var sql ="INSERT INTO `jaw-app`.`testResults` \
+                                                     ( `Recheck`, `idSpfChem`, \
+                                                    `Tn`, `PH`, `Salt`, `Tss`, \
+                                                    `Histamine`, `SPGTest`, `Aw`, \
+                                                    `idSpfMicro`, `APC`, \
+                                                    `Yeasts`, `EColi`, `Coliform`, \
+                                                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ? ) ; "
+                                                     connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, idmicro, null, null, null, null,
+                                                        null, idOrders, null , null , null, null
+                                                    ], (err, results) => {
+                                                        if(err){
+                                                            return next(err)
+                                                        }else{
+                                                            res.json({
+                                                                success: "success",
+                                                                message: results,
+                                                                message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+                                                            })
+                                                        }
+                                                     })
                                                 })
                                             }
                                         })
@@ -735,20 +762,29 @@ exports.Addtestreport = (req, res, next) => {
     var TempAW      = body.TempAW
     var TempTSS     = body.TempTSS
     var TempSPG      = body.TempSPG
-    console.log(body)
+    console.log('body : ' , body)
     req.getConnection((err, connection) => {
         if(err) return next(err)
-
-        var sql ="INSERT INTO `jaw-app`.`testResults` \
-         ( `Recheck`, `idSpfChem`, \
-        `Tn`, `PH`, `Salt`, `Tss`, \
-        `Histamine`, `SPGTest`, `Aw`, \
-        `idSpfMicro`, `APC`, \
-        `Yeasts`, `EColi`, `Coliform`, \
-        `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ? ) ; "
+        // var sql = "UPDATE `jaw-app`.`Orders` SET  PORD=?, BBE=?, PO=?, ProductName=?, Size=?, Quantity=?, idScfChem=?, idScfMicro=?, Priority=? \
+        // WHERE idOrders=?"
+        
+        // var sql ="INSERT INTO `jaw-app`.`testResults` \
+        //  ( `Recheck`, `idSpfChem`, \
+        // `Tn`, `PH`, `Salt`, `Tss`, \
+        // `Histamine`, `SPGTest`, `Aw`, \
+        // `idSpfMicro`, `APC`, \
+        // `Yeasts`, `EColi`, `Coliform`, \
+        // `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ? ) ; "
+        
+        var sql ="UPDATE `jaw-app`.`testResults` SET Recheck = ?, idSpfChem = ?, \
+        Tn = ? , PH =? , Salt = ? , Tss = ?, \
+        Histamine = ? , SPGTest = ?, Aw = ?, \
+        idSpfMicro = ?, APC = ?, \
+        Yeasts = ?, EColi = ?, Coliform = ? , \
+        Saureus = ? , tempPH = ? , tempAW = ? , tempTss = ?  , tempSPG = ? WHERE idOrderTested = ? "
          connection.query(sql, [ Recheck, idSpfChem, Tn,
         PH, Salt, Tss, Histamine, SPG, Aw, idSpfMicro, APC, Yeasts, EColi, Coliform,
-        Saureus, idOrders, TempPH , TempAW , TempTSS, TempSPG
+        Saureus, TempPH , TempAW , TempTSS, TempSPG, idOrders
         ], (err, results) => {
             if(err){
                 return next(err)
@@ -770,12 +806,12 @@ function testResult(index){
             //TN
             if(index.Tn >= index.TnMain && index.Tn <= index.TnMax ){
                 let tnn = {
-                    int:true , coa:true , val:index.Tn, valTn:index.Tn , key:'TN(g/L)' , temp:false , keyInput:"Tn" 
+                    int:true , coa:true , val:index.Tn, valTn:index.Tn , key:'TN(g/L)' , temp:false , keyInput:"Tn"  , tkTemp:false
                 }
                 TestedIndex.push(tnn)
             }else{
                 let tnn = {
-                    int:false , coa:false, val:index.Tn, valTn:index.Tn , key:'TN(g/L)' , temp:false , keyInput:"Tn" 
+                    int:false , coa:false, val:index.Tn, valTn:index.Tn , key:'TN(g/L)' , temp:false , keyInput:"Tn" , tkTemp:false
                 }
                 TestedIndex.push(tnn)
             }
@@ -783,36 +819,36 @@ function testResult(index){
             if(index.Salt >= index.SaltControlMin && index.Salt <= index.SaltCOAMax ){
                 if(index.Salt <= index.SaltCOAMin){
                 let Salt = {
-                    int:true , coa:true, val:index.SaltCOAMin, valSalt:index.SaltCOAMin , key:'%Salt(w/v)' , temp:false ,keyInput:"Salt"
+                    int:true , coa:true, val:index.SaltCOAMin, valSalt:index.SaltCOAMin , key:'%Salt(w/v)' , temp:false ,keyInput:"Salt", tkTemp:false
                 }
                 TestedIndex.push(Salt) 
                 }else{
                     let Salt = {
-                        int:true , coa:true, val:index.Salt, valSalt:index.Salt , key:'%Salt(w/v)' , temp:false ,keyInput:"Salt"
+                        int:true , coa:true, val:index.Salt, valSalt:index.Salt , key:'%Salt(w/v)' , temp:false ,keyInput:"Salt", tkTemp:false
                     }
                     TestedIndex.push(Salt) 
                 }
             }else{
                 let Salt = {
-                    int:false , coa:false, val:index.Salt, valSalt:index.Salt ,  key:'%Salt(w/v)' , temp:false ,keyInput:"Salt"
+                    int:false , coa:false, val:index.Salt, valSalt:index.Salt ,  key:'%Salt(w/v)' , temp:false ,keyInput:"Salt", tkTemp:false
                 }
                 TestedIndex.push(Salt)
             }
             //Histamine
-            console.log('index.Histamine : ', index.Histamine)
+            //console.log('index.Histamine : ', index.Histamine)
             if(index.Histamine == null){
                 let His = {
-                    int:false , coa:false , val:index.Histamine, valHistamine:index.Histamine , key:'Histamine(ppm)' , temp:false ,keyInput:"Histamine"
+                    int:false , coa:false , val:index.Histamine, valHistamine:index.Histamine , key:'Histamine(ppm)' , temp:false ,keyInput:"Histamine", tkTemp:false
                 }
                 TestedIndex.push(His)
             }else if(index.Histamine >= index.HistamineMin && index.Histamine <= index.HistamineMax){
                 let His = {
-                    int:true , coa:true , val:index.Histamine, valHistamine:index.Histamine, key:'Histamine(ppm)' , temp:false ,keyInput:"Histamine"
+                    int:true , coa:true , val:index.Histamine, valHistamine:index.Histamine, key:'Histamine(ppm)' , temp:false ,keyInput:"Histamine", tkTemp:false
                 }
                 TestedIndex.push(His)
             }else{
                 let His = {
-                    int:false , coa:false , val:index.Histamine, valHistamine:index.Histamine , key:'Histamine(ppm)' , temp:false ,keyInput:"Histamine"
+                    int:false , coa:false , val:index.Histamine, valHistamine:index.Histamine , key:'Histamine(ppm)' , temp:false ,keyInput:"Histamine", tkTemp:false
                 }
                 TestedIndex.push(His)
             }
@@ -820,60 +856,65 @@ function testResult(index){
             if(index.PH >= index.PHControlMin && index.PH <= index.PHCOAMax ){
                 if(index.PH <= index.PHCOAMin){
                     let phh = {
-                        int:true , coa:true, val:index.PHCOAMin, valPH:index.PHCOAMin ,  key:'PH' , temp:index.tempPH , keyInput:"PH" , keyTemp:'tempPH'
+                        int:true , coa:true, val:index.PHCOAMin, valPH:index.PHCOAMin ,  key:'PH' , temp:index.tempPH , keyInput:"PH" , keyTemp:'TempPH' , tkTemp:true
                     }
                     TestedIndex.push(phh)
                 }else{
                     let phh = {
-                        int:true , coa:true, val:index.PH, valPH:index.PH, key:'PH' ,  temp:index.tempPH , keyInput:"PH", keyTemp:'tempPH'
+                        int:true , coa:true, val:index.PH, valPH:index.PH, key:'PH' ,  temp:index.tempPH , keyInput:"PH", keyTemp:'TempPH' , tkTemp:true
                 }
                 TestedIndex.push(phh)
                 }
             }else{
                 let phh = {
-                    int:false , coa:false, val:index.PH, valPH:index.PH  , key:'PH' , temp:index.tempPH , keyInput:"PH", keyTemp:'tempPH'
+                    int:false , coa:false, val:index.PH, valPH:index.PH  , key:'PH' , temp:index.tempPH , keyInput:"PH", keyTemp:'TempPH' , tkTemp:true
                 }
                 TestedIndex.push(phh)
             }
             //AW
-            if(index.Aw >= index.AWMin && index.Aw <= index.AWMax){
+            if(index.Aw == null){
                 let Aw = {
-                    int:true , coa:true , val:index.Aw, valAw:index.Aw , key:'Aw', temp:index.tempAW ,keyInput:"Aw", keyTemp:'tempAW'
+                    int:false , coa:false , val:index.Aw, valAw:index.Aw , key:'Aw', temp:index.tempAW ,keyInput:"Aw", keyTemp:'TempAW' , tkTemp:true
+                }
+                TestedIndex.push(Aw)
+            }else if(index.Aw >= index.AWMin && index.Aw <= index.AWMax){
+                let Aw = {
+                    int:true , coa:true , val:index.Aw, valAw:index.Aw , key:'Aw', temp:index.tempAW ,keyInput:"Aw", keyTemp:'TempAW' , tkTemp:true
                 }
                 TestedIndex.push(Aw)
             }else{
                 let Aw = {
-                    int:false , coa:false , val:index.Aw, valAw:index.Aw , key:'Aw', temp:index.tempAW ,keyInput:"Aw", keyTemp:'tempAW'
+                    int:false , coa:false , val:index.Aw, valAw:index.Aw , key:'Aw', temp:index.tempAW ,keyInput:"Aw", keyTemp:'TempAW' , tkTemp:true
                 }
                 TestedIndex.push(Aw)
             }
             //TSS
-            if(index.Tss >= index.TSSMin && index.Tss <= index.TSSMax){
+            if(index.Tss == null){
                 let Tss = {
-                    int:true , coa:true , val:index.Tss, valTss:index.Tss ,key:'Tss(Brix)', temp:index.tempTSS ,keyInput:"Tss" , keyTemp:'tempTSS'
+                    int:false , coa:false , val:null, valTss:null, key:'Tss(Brix)', temp:index.tempTSS ,keyInput:"Tss" , keyTemp:'TempTSS' , tkTemp:true
                 }
                 TestedIndex.push(Tss)
-            }else if(index.Tss == null){
+            }else if(index.Tss >= index.TSSMin && index.Tss <= index.TSSMax){
                 let Tss = {
-                    int:true , coa:true , val:null, valTss:null, key:'Tss(Brix)', temp:index.tempTSS ,keyInput:"Tss" , keyTemp:'tempTSS'
+                    int:true , coa:true , val:index.Tss, valTss:index.Tss ,key:'Tss(Brix)', temp:index.tempTSS ,keyInput:"Tss" , keyTemp:'TempTSS' , tkTemp:true
                 }
                 TestedIndex.push(Tss)
             }else{
                 let Tss = {
-                    int:false , coa:false , val:index.Tss, valTss:index.Tss ,key:'Tss(Brix)', temp:index.tempTSS ,keyInput:"Tss" , keyTemp:'tempTSS'
+                    int:false , coa:false , val:index.Tss, valTss:index.Tss ,key:'Tss(Brix)', temp:index.tempTSS ,keyInput:"Tss" , keyTemp:'TempTSS' , tkTemp:true
                 }
                 TestedIndex.push(Tss)
             }
             //SPG
             //console.log(index.SPGTest)
-            if(index.SPGTest > 0 && index.SPGTest < index.SPG){
+            if(index.SPGTest > 0 && index.SPGTest <= index.SPG){
                 let spg = {
-                    int:true , coa:true , val:index.SPGTest, valSPG:index.SPGTest ,key:'SPG', temp:index.tempSPG ,keyInput:"SPG" , keyTemp:'tempSPG'
+                    int:true , coa:true , val:index.SPGTest, valSPG:index.SPGTest ,key:'SPG', temp:index.tempSPG ,keyInput:"SPG" , keyTemp:'TempSPG' , tkTemp:true
                 }
                 TestedIndex.push(spg)
             }else{
                 let spg = {
-                    int:false , coa:false , val:index.SPGTest, valSPG:index.SPGTest, key:'SPG', temp:index.tempSPG ,keyInput:"SPG" , keyTemp:'tempSPG'
+                    int:false , coa:false , val:index.SPGTest, valSPG:index.SPGTest, key:'SPG', temp:index.tempSPG ,keyInput:"SPG" , keyTemp:'TempSPG' , tkTemp:true
                 }
                 TestedIndex.push(spg)
             }
@@ -882,60 +923,60 @@ function testResult(index){
             // APC
             if(index.APC > index.APCMin && index.APC < index.APCMax){
                 let apc = {
-                    int:true , coa:true , val:index.APC, key:'APC'
+                    int:true , coa:true , val:index.APC, key:'APC', keyInput:'APC'
                 }
                 bio.push(apc)
             }else{
                 let apc = {
-                    int:false , coa:false , val:index.APC, key:'APC'
+                    int:false , coa:false , val:index.APC, key:'APC', keyInput:'APC'
                 }
                 bio.push(apc)
             }
             // Yeasts & Molds
             if(index.Yeasts > index.YeastsMin && index.Yeasts < index.YeastsMax){
                 let Yeasts = {
-                    int:true , coa:true , val:index.Yeasts, key:'Yeasts & Molds'
+                    int:true , coa:true , val:index.Yeasts, key:'Yeasts & Molds', keyInput:'Yeasts'
                 }
                 bio.push(Yeasts)
             }else{
                 let Yeasts = {
-                    int:false , coa:false , val:index.Yeasts, key:'Yeasts & Molds'
+                    int:false , coa:false , val:index.Yeasts, key:'Yeasts & Molds', keyInput:'Yeasts'
                 }
                 bio.push(Yeasts)
             }
             // E. coil
             if(index.EColi > index.EColiMin && index.EColi < index.EColiMax){
                 let EColi = {
-                    int:true , coa:true , val:index.EColi, key:'E. coil'
+                    int:true , coa:true , val:index.EColi, key:'E. coil', keyInput:'EColi'
                 }
                 bio.push(EColi)
             }else{
                 let EColi = {
-                    int:false , coa:false , val:index.EColi, key:'E. coil'
+                    int:false , coa:false , val:index.EColi, key:'E. coil', keyInput:'EColi'
                 }
                 bio.push(EColi)
             }
             // Coliform
             if(index.Coliform > index.ColiformMin && index.Coliform < index.ColiformMax){
                 let Coliform = {
-                    int:true , coa:true , val:index.Coliform, key:'Coliform'
+                    int:true , coa:true , val:index.Coliform, key:'Coliform', keyInput:'Coliform'
                 }
                 bio.push(Coliform)
             }else{
                 let Coliform = {
-                    int:false , coa:false , val:index.Coliform, key:'Coliform'
+                    int:false , coa:false , val:index.Coliform, key:'Coliform', keyInput:'Coliform'
                 }
                 bio.push(Coliform)
             }
             // S. aureus
             if(index.Saureus > index.SaureusMin && index.Saureus < index.SaureusMax){
                 let Saureus = {
-                    int:true , coa:true , val:index.Saureus, key:'S. aureus'
+                    int:true , coa:true , val:index.Saureus, key:'S. aureus', keyInput:'Saureus'
                 }
                 bio.push(Saureus)
             }else{
                 let Saureus = {
-                    int:false , coa:false , val:index.Saureus, key:'S. aureus'
+                    int:false , coa:false , val:index.Saureus, key:'S. aureus', keyInput:'Saureus'
                 }
                 bio.push(Saureus)
             }
@@ -973,7 +1014,7 @@ exports.readTestReportlasted = (req, res, next) => {
                     })
                 }else{
                     var resultTested = testResult(results[0])
-                    console.log('resultTested : ',resultTested)
+                    // console.log('resultTested : ',resultTested)
                     // console.log('spc chem name: ',results[0].name)
                     
                     res.json({
@@ -988,3 +1029,133 @@ exports.readTestReportlasted = (req, res, next) => {
     })
 }
 
+exports.Recheck = (req, res, next) => {
+    var {
+        body
+    } = req;
+    var idOrders    = body.idOrders
+    var Recheck    = body.Recheck
+    Recheck = Recheck+1
+    // console.log('Recheck : ', body)
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+
+        var sql = "UPDATE `jaw-app`.`Orders` SET  Recheck=? , Status=2 WHERE idOrders = ?"
+        connection.query(sql,[Recheck, idOrders] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                res.json({
+                    success: "success",
+                    message: results,
+                    message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                })
+            }
+        })
+    })
+}
+
+exports.WaitMicro = (req, res, next) => {
+    var {
+        body
+    } = req;
+    var idOrders    = body.idOrders
+    // console.log('Recheck : ', body)
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+
+        var sql = "UPDATE `jaw-app`.`Orders` SET Status=3 WHERE idOrders = ?"
+        connection.query(sql,[idOrders] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                res.json({
+                    success: "success",
+                    message: results,
+                    message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                })
+            }
+        })
+    })
+}
+
+exports.readFG = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    var idOrders    = body.idOrders
+
+    var current_datetime = new Date()
+    let formatted_date_now = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + (current_datetime.getDate())
+    
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+
+        var sql = "SELECT * FROM `jaw-app`.`RealTimeDonutFG` WHERE date=? "
+        connection.query(sql,[formatted_date_now] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                console.log(results.length)
+                if(results.length > 0){
+                    res.json({
+                            success: "success",
+                            message: results,
+                            // message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                        })
+                }else{
+                    req.getConnection((err, connection) => {
+                        if(err) return next(err)
+                        var sql = "INSERT INTO `jaw-app`.`RealTimeDonutFG` (`TN` , `PH` , `SALT`, `TSS`, `HISTAMINE`, `SPG`, `AW`, `date`) VALUES (0, 0, 0, 0, 0, 0, 0, ?);"
+                        connection.query(sql,[formatted_date_now],(err, results) => {
+                            if(err){
+                                return next(err)
+                            }else{
+                                res.json({
+                            success: "success",
+                            message: results,
+                            // message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                        })
+                            }
+                        })
+                    })
+                }
+            }
+        })
+    })
+}
+
+exports.updateFG = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    var Tn = body.Tn
+    var PH = body.PH
+    var Salt = body.Salt
+    var Tss = body.Tss
+    var Histamine = body.Histamine
+    var SPG = body.SPG
+    var Aw = body.Aw
+
+    console.log('updateFG : ' ,body)
+
+    var current_datetime = new Date()
+    let formatted_date_now = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + (current_datetime.getDate())
+    
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql = "UPDATE `jaw-app`.`RealTimeDonutFG` SET `TN` = `TN`+? , `PH` = `PH`+? , `SALT`=`SALT`+?, `TSS`=`TSS`+?, `HISTAMINE`=`HISTAMINE`+?, `SPG`=`SPG`+?, `AW`=`AW`+? WHERE date=?"
+        connection.query(sql, [Tn,PH,Salt,Tss,Histamine,SPG,Aw,formatted_date_now] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                res.json({
+                    success: "success",
+                    message: results,
+                })
+            }
+        })
+    })
+}

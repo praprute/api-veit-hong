@@ -21,14 +21,36 @@ const { addOrder,
     readIdMicro,
     urgentOrders,
     readOrdertoCheck,
-    reSend
+    reSend,
+    Recheck,
+    WaitMicro,
+    readFG,
+    updateFG
+
 } = require('../controller/ProductConotroller');
+
+// const status = {
+//     1: (
+//       <span className="badge bg-success font-size-10">Completed</span>
+//     ),
+//     0: <span className="badge bg-warning font-size-10">Waiting to check</span>,
+//     3: <span className="badge bg-warning font-size-10">Waiting to Micro</span>,
+//     2: <span className="badge bg-danger font-size-10">Rechecking</span>,
+//   }
+
+// const statePriority = {
+//     0: <span className="badge bg-success font-size-10">normal</span>,
+//     1: <span className="badge bg-warning font-size-10">rush</span>,
+//     2: <span className="badge bg-danger font-size-10">urgent</span>,
+//     }
+
+
 const { requireSignin } = require('../controller/authController')
 router.post('/addOrder', requireSignin,addOrder);
 router.post('/updateOrder', requireSignin,updateOrder);
 router.post('/deleteOrder', requireSignin,deleteOrder);
 router.post('/reSend', requireSignin,reSend);
-// router.post('/updateOrder', requireSignin,updateOrder);
+
 router.post('/readAllOrder', requireSignin,readAllOrder);
 router.post('/readOrdertoCheck', requireSignin,readOrdertoCheck);
 router.post('/urgentOrders', requireSignin,urgentOrders);
@@ -42,11 +64,23 @@ router.post('/readAllSpecificChemById', requireSignin,readAllSpecificChemById);
 router.post('/DeleteSpecificChemById', requireSignin,DeleteSpecificChemById);
 router.post('/readRecheckOrder', requireSignin,readRecheckOrder);
 router.post('/readRealTimeOrder', requireSignin,readRealTimeOrder);
-router.post('/readTestReportlasted', requireSignin,readTestReportlasted);
 router.post('/readAllSpecificBioById', requireSignin,readAllSpecificBioById);
+
+//Read FG
+router.post('/readFG', requireSignin,readFG);
+router.post('/updateFGadFG', requireSignin,updateFG);
+
+//Read test report
+router.post('/readTestReportlasted', requireSignin,readTestReportlasted);
 
 //Addtestreport
 router.post('/Addtestreport', requireSignin,Addtestreport);
+
+//Recheck
+router.post('/Recheck', requireSignin,Recheck);
+
+//wait micro
+router.post('/WaitMicro', requireSignin,WaitMicro);
 
 //Checkbox Specific
 router.post('/readIdChemCheckbox', requireSignin,readIdChem);
