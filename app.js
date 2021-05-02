@@ -15,9 +15,9 @@ app.use(express.json())
 // console.log(dbOption)
 
 var connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: '12345678',
+    host: '128.199.228.63',
+    user: 'admin',
+    password: '0990576878JUNIOR',
     port: 3306,
     database: 'jaw-app',
     dateStrings: true,
