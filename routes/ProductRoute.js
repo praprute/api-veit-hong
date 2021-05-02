@@ -30,7 +30,10 @@ const { addOrder,
     updateSTadST,
     addRealTimeOrder,
     updateCardDS,
-    readCardDS
+    readCardDS,
+    exportCOA,
+    UpdatexportCOA,
+    UpdatexportPASS
 
 } = require('../controller/ProductConotroller');
 
@@ -98,5 +101,10 @@ router.post('/WaitMicro', requireSignin,WaitMicro);
 //Checkbox Specific
 router.post('/readIdChemCheckbox', requireSignin,readIdChem);
 router.post('/readIdMicroCheckbox', requireSignin,readIdMicro);
+
+//exportCOA
+router.post('/exportCOA', requireSignin,exportCOA);
+router.post('/UpdatexportCOA', requireSignin,UpdatexportCOA);
+router.post('/UpdatexportPASS', requireSignin,UpdatexportPASS);
 
 module.exports = router;

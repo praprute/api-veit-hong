@@ -11,7 +11,7 @@ exports.register = (req, res, next) => {
     var password = body.password;
     var name = body.name;
 
-    console.log(body)
+    // console.log(body)
 
     req.getConnection((err, connection) => {
         if (err) return next(err)
@@ -75,7 +75,7 @@ exports.signin = (req, res, next) => {
     var {
         body
     } = req;
-console.log(body)
+// console.log(body)
     var username = body.username;
     var password = body.password;
     if(username == '' || password == ''){

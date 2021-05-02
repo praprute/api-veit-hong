@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const expressJwt = require('express-jwt')
 const config = require('./../config');
 const { connect } = require('pm2');
+const imageToBase64 = require('image-to-base64');
 
 exports.addOrder = (req, res, next) => {
     var {
@@ -19,7 +20,7 @@ exports.addOrder = (req, res, next) => {
     var priority    = body.Priority
 
     // var insertIdOrder  = ""
-    console.log('add order : ', body)
+    // console.log('add order : ', body)
     if(pord !== 'Invalid date'){
         if(bbe !== 'Invalid date'){
             if(po !== ''){
@@ -37,7 +38,7 @@ exports.addOrder = (req, res, next) => {
                                             if(err){
                                                 return next(err)
                                             }else{
-                                                console.log(results)
+                                                // console.log(results)
                                                 // insertIdOrder = insertId
                                                 // res.json({
                                                 //     success: "success",
@@ -143,7 +144,7 @@ exports.updateOrder = (req, res, next) => {
         body
     } = req;
 
-    console.log(body)
+    // console.log(body)
 
     var pord        = body.PORD
     var bbe         = body.BBE
@@ -180,7 +181,7 @@ exports.reSend = (req, res, next) => {
         body
     } = req;
 
-    console.log(body)
+    // console.log(body)
 
     var idOrders    = body.idOrders
 
@@ -206,7 +207,7 @@ exports.deleteOrder = (req, res, next) => {
     var {
         body
     } = req;
-    console.log('deleteOrder : ' ,body)
+    // console.log('deleteOrder : ' ,body)
    
     var idOrders    = body.idOrders
     req.getConnection((err, connection) => {
@@ -820,7 +821,7 @@ exports.Addtestreport = (req, res, next) => {
     var TempAW      = body.TempAW
     var TempTSS     = body.TempTSS
     var TempSPG      = body.TempSPG
-    console.log('body : ' , body)
+    // console.log('body : ' , body)
     req.getConnection((err, connection) => {
         if(err) return next(err)
         // var sql = "UPDATE `jaw-app`.`Orders` SET  PORD=?, BBE=?, PO=?, ProductName=?, Size=?, Quantity=?, idScfChem=?, idScfMicro=?, Priority=? \
@@ -861,6 +862,7 @@ function testResult(index){
     if(index){
         var results = []
         var TestedIndex = []
+        var TimeToTest = []
             //TN
             if(index.Tn >= index.TnMain && index.Tn <= index.TnMax ){
                 let tnn = {
@@ -1038,8 +1040,10 @@ function testResult(index){
                 }
                 bio.push(Saureus)
             }
-            results.push(TestedIndex, bio)
-            console.log('index : ', index)
+
+            TimeToTest.push({TimeTest : index.timestampTest})
+            results.push(TestedIndex, bio, TimeToTest)
+            // console.log('index : ', index)
 
             return(results)
             
@@ -1053,17 +1057,17 @@ exports.readTestReportlasted = (req, res, next) => {
     var {
         body
     } = req;
-    console.log(body)
+    // console.log(body)
     var idOrders    = body.idOrders
     req.getConnection((err, connection) => {
         if (err) return next(err)
         var sql = "SELECT * FROM `jaw-app`.testResults, `jaw-app`.PdSpecificChem  , `jaw-app`.PdSpecificMicro \
-         WHERE testResults.idOrderTested = ? AND testResults.idSpfChem = PdSpecificChem.idPdSpecificChem  ORDER BY testResults.timestamp DESC LIMIT 1;"
+         WHERE testResults.idOrderTested = ? AND testResults.idSpfChem = PdSpecificChem.idPdSpecificChem  ORDER BY testResults.timestampTest DESC LIMIT 1;"
         connection.query(sql,[idOrders] , (err, results) => {
             if(err){
                 return next(err)
             }else{
-                console.log(results[0])
+                // console.log(results[0])
                 if(results[0] == undefined){
                     res.json({
                         success: "error",
@@ -1072,7 +1076,7 @@ exports.readTestReportlasted = (req, res, next) => {
                     })
                 }else{
                     var resultTested = testResult(results[0])
-                    console.log('resultTested : ',resultTested)
+                    // console.log('resultTested : ',resultTested)
                     // console.log('spc chem name: ',results[0].name)
                     
                     res.json({
@@ -1112,7 +1116,7 @@ exports.Recheck = (req, res, next) => {
                             return next(err)
                         }else{
                             
-                            console.log('Recheck : ', results)
+                            // console.log('Recheck : ', results)
                             res.json({
                                 success: "success",
                                 message: results,
@@ -1174,7 +1178,7 @@ exports.readFG = (req, res, next) => {
             if(err){
                 return next(err)
             }else{
-                console.log(results.length)
+                // console.log(results.length)
                 if(results.length > 0){
                     res.json({
                             success: "success",
@@ -1221,7 +1225,7 @@ exports.readST = (req, res, next) => {
             if(err){
                 return next(err)
             }else{
-                console.log(results.length)
+                // console.log(results.length)
                 if(results.length > 0){
                     res.json({
                             success: "success",
@@ -1263,7 +1267,7 @@ exports.updateFG = (req, res, next) => {
     var SPG = body.SPG
     var Aw = body.Aw
 
-    console.log('updateFG : ' ,body)
+    // console.log('updateFG : ' ,body)
 
     var current_datetime = new Date()
     let formatted_date_now = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + (current_datetime.getDate())
@@ -1337,7 +1341,7 @@ exports.updateCardDS = (req, res, next) => {
                 return next(err)
             }else{
                 allOrder = results.length
-                console.log('allOrder : ', allOrder)
+                // console.log('allOrder : ', allOrder)
                 req.getConnection((err, connection) => {
                     if (err) return next(err)
                     var sql = "UPDATE `jaw-app`.RealTimeCardDS SET ALLSample=?  WHERE idRealTimeCardDS = 1 ;"
@@ -1374,3 +1378,74 @@ exports.readCardDS = (req, res, next) => {
     })
 }
 
+exports.exportCOA = (req, res, next) => {
+    // console.log('exportCOA')
+    req.getConnection((err, connection) => {
+        if (err){
+            return next(err)
+        }else{
+            imageToBase64("https://jaw.sgp1.digitaloceanspaces.com/Logo-RFS.png") // Path to the image
+        .then(
+            (response) => {
+                res.json({
+                    success: "success",
+                    message: response,
+                })
+                // console.log(response); // "cGF0aC90by9maWxlLmpwZw=="
+            }
+        )
+        .catch(
+            (error) => {
+                // console.log(error); // Logs an error if there was one
+            }
+        ) 
+        }
+    })
+   
+}
+
+exports.UpdatexportCOA = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    // var idOrders    = body.idOrders
+    // console.log('UpdatexportCOA : ', body)
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql = "UPDATE `jaw-app`.RealTimeCardDS SET COAExprot=COAExprot+1  WHERE idRealTimeCardDS = 1 ;"
+        connection.query(sql, [] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                res.json({
+                    success: "success",
+                    message: results,
+                })  
+            }
+        })
+    })
+}
+
+exports.UpdatexportPASS = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    var idOrders    = body.idOrders
+    // console.log('UpdatexportCOA : ', body)
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql2 = "UPDATE `jaw-app`.`Orders` SET Status=1 WHERE idOrders = ?"
+                connection.query(sql2, [idOrders] , (err, results) => {
+                    if(err){
+                        return next(err)
+                    }else{
+                        res.json({
+                            success: "success",
+                            message: results,
+                        })
+                    }
+                })
+    })
+}
