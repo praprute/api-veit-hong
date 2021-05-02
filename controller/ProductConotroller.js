@@ -17,6 +17,8 @@ exports.addOrder = (req, res, next) => {
     var idchem      = body.idScfChem
     var idmicro     = body.idScfMicro
     var priority    = body.Priority
+
+    // var insertIdOrder  = ""
     console.log('add order : ', body)
     if(pord !== 'Invalid date'){
         if(bbe !== 'Invalid date'){
@@ -36,6 +38,7 @@ exports.addOrder = (req, res, next) => {
                                                 return next(err)
                                             }else{
                                                 console.log(results)
+                                                // insertIdOrder = insertId
                                                 // res.json({
                                                 //     success: "success",
                                                 //     message: results,
@@ -61,6 +64,7 @@ exports.addOrder = (req, res, next) => {
                                                             res.json({
                                                                 success: "success",
                                                                 message: results,
+                                                                idAddOrder : idOrders,
                                                                 message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
                                                             })
                                                         }
@@ -205,50 +209,78 @@ exports.deleteOrder = (req, res, next) => {
     console.log('deleteOrder : ' ,body)
    
     var idOrders    = body.idOrders
-
     req.getConnection((err, connection) => {
         if (err) return next(err)
-        
-        var Checktested =  "SELECT*FROM `jaw-app`.testResults WHERE idOrderTested=?"
-        connection.query(Checktested, [idOrders], (err, results) => {
-            console.log('results.length : ',results.length)
-            if(results.length > 0){
-                var sqlTestDelete = "DELETE FROM `jaw-app`.testResults WHERE idOrderTested=?"
-                    connection.query(sqlTestDelete, [idOrders], (err, results2) => {
-                        if(err){
-                            return next(err)
-                        }else{
+        var CheckReaTimeOrder = "SELECT*FROM `jaw-app`.RealTimeOrder WHERE idOrder=?"
+        connection.query(CheckReaTimeOrder,[idOrders], (err, results) => {
+            if(err){
+                return next(err)
+                }else{
+                    if(results.length > 0){
+                        var sqlDeleteRealTime = "DELETE FROM `jaw-app`.`RealTimeOrder` WHERE idOrder=?"
+                        connection.query(sqlDeleteRealTime,[idOrders] , (err, results2) => {
+                            if(err){
+                                return next(err)
+                            }else{
+                                var Checktested =  "SELECT*FROM `jaw-app`.testResults WHERE idOrderTested=?"
+                                connection.query(Checktested, [idOrders], (err, results3) => {
+                                    if(err){
+                                        return next(err)
+                                    }else{
+                                        if(results3.length > 0){
+                                            var sqlTestDelete = "DELETE FROM `jaw-app`.testResults WHERE idOrderTested=?"
+                                            connection.query(sqlTestDelete, [idOrders], (err, results4) => {
+                                                if(err){
+                                                    return next(err)
+                                                }else{
+                                                    var sql = "DELETE FROM `jaw-app`.`Orders` WHERE idOrders=?"
+                                                    connection.query(sql,[idOrders] , (err, results5) => {
+                                                        if(err){
+                                                            return next(err)
+                                                        }else{
+                                                            res.json({
+                                                                success: "success",
+                                                                message: results5,
+                                                                message_th: "ทำการลบข้อมูล order ลงรายงการเรียบร้อย"
+                                                            }) 
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                        }else{
+                                            var sql = "DELETE FROM `jaw-app`.`Orders` WHERE idOrders=?"
+                                            connection.query(sql,[idOrders] , (err, results6) => {
+                                                if(err){
+                                                    return next(err)
+                                                }else{
+                                                    res.json({
+                                                        success: "success",
+                                                        message: results6,
+                                                        message_th: "ทำการลบข้อมูล order ลงรายงการเรียบร้อย"
+                                                    }) 
+                                                }
+                                            })
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    }else{
                         var sql = "DELETE FROM `jaw-app`.`Orders` WHERE idOrders=?"
-                        connection.query(sql,[idOrders] , (err, results3) => {
-                        if(err){
-                            return next(err)
-                        }else{
-                            res.json({
-                                success: "success",
-                                message: results3,
-                                message_th: "ทำการลบข้อมูล order ลงรายงการเรียบร้อย"
-                            })
-                        }
-                    })
-                        }
-                    })
-            }else{
-                var sql2 = "DELETE FROM `jaw-app`.`Orders` WHERE idOrders=?"
-                        connection.query(sql2,[idOrders] , (err, results4) => {
-                        if(err){
-                            return next(err)
-                        }else{
-                            res.json({
-                                success: "success",
-                                message: results4,
-                                message_th: "ทำการลบข้อมูล order ลงรายงการเรียบร้อย"
-                            })
-                        }
-                    })
-            }
+                        connection.query(sql,[idOrders] , (err, results7) => {
+                            if(err){
+                                return next(err)
+                            }else{
+                                res.json({
+                                    success: "success",
+                                    message: results7,
+                                    message_th: "ทำการลบข้อมูล order ลงรายงการเรียบร้อย"
+                                })
+                            }
+                        })
+                    }
+                }
         })
-       
-        
     })
 }
 
@@ -339,7 +371,7 @@ exports.readRealTimeOrder = (req, res, next) => {
         if (err) return next(err)
 
         var sql = "SELECT * FROM `jaw-app`.Orders,`jaw-app`.RealTimeOrder ,`jaw-app`.PdSpecificChem \
-        WHERE Orders.idOrders = RealTimeOrder.idOrder  AND Orders.idScfChem = PdSpecificChem.idPdSpecificChem ORDER BY Orders.timestamp DESC"
+        WHERE Orders.idOrders = RealTimeOrder.idOrder  AND Orders.idScfChem = PdSpecificChem.idPdSpecificChem ORDER BY Orders.timestamp DESC LIMIT 5"
         connection.query(sql,[] , (err, results) => {
             if(err){
                 return next(err)
@@ -353,6 +385,32 @@ exports.readRealTimeOrder = (req, res, next) => {
         })
     }) 
 }
+exports.addRealTimeOrder = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    var idOrders    = body.idOrders
+
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+
+        var sql = "INSERT INTO `jaw-app`.RealTimeOrder (`idOrder`) VALUES (?);"
+        connection.query(sql,[idOrders] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                res.json({
+                    success: "success",
+                    message: results,
+                    message_th: "ทำการอ่านข้อมูล order ลงรายงการเรียบร้อย"
+                })
+            }
+        })
+    }) 
+}
+
+
 
 exports.readRecheckOrder = (req, res, next) => {
     var {
@@ -1005,7 +1063,7 @@ exports.readTestReportlasted = (req, res, next) => {
             if(err){
                 return next(err)
             }else{
-                // console.log(results[0])
+                console.log(results[0])
                 if(results[0] == undefined){
                     res.json({
                         success: "error",
@@ -1014,7 +1072,7 @@ exports.readTestReportlasted = (req, res, next) => {
                     })
                 }else{
                     var resultTested = testResult(results[0])
-                    // console.log('resultTested : ',resultTested)
+                    console.log('resultTested : ',resultTested)
                     // console.log('spc chem name: ',results[0].name)
                     
                     res.json({
@@ -1036,7 +1094,7 @@ exports.Recheck = (req, res, next) => {
     var idOrders    = body.idOrders
     var Recheck    = body.Recheck
     Recheck = Recheck+1
-    // console.log('Recheck : ', body)
+    
     req.getConnection((err, connection) => {
         if (err) return next(err)
 
@@ -1045,11 +1103,30 @@ exports.Recheck = (req, res, next) => {
             if(err){
                 return next(err)
             }else{
-                res.json({
-                    success: "success",
-                    message: results,
-                    message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                req.getConnection((err, connection) => {
+                    if (err) return next(err)
+            
+                    var sql = "UPDATE `jaw-app`.`RealTimeCardDS` SET  Recheck=Recheck+1 WHERE idRealTimeCardDS = 1"
+                    connection.query(sql,[Recheck, idOrders] , (err, results) => {
+                        if(err){
+                            return next(err)
+                        }else{
+                            
+                            console.log('Recheck : ', results)
+                            res.json({
+                                success: "success",
+                                message: results,
+                                message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                            })
+                        }
+                    })
                 })
+                // console.log('Recheck : ', results)
+                // res.json({
+                //     success: "success",
+                //     message: results,
+                //     message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                // })
             }
         })
     })
@@ -1126,6 +1203,53 @@ exports.readFG = (req, res, next) => {
     })
 }
 
+exports.readST = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    var idOrders    = body.idOrders
+
+    var current_datetime = new Date()
+    let formatted_date_now = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + (current_datetime.getDate())
+    
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+
+        var sql = "SELECT * FROM `jaw-app`.`RealTimeDonutST` WHERE date=? "
+        connection.query(sql,[formatted_date_now] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                console.log(results.length)
+                if(results.length > 0){
+                    res.json({
+                            success: "success",
+                            message: results,
+                            // message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                        })
+                }else{
+                    req.getConnection((err, connection) => {
+                        if(err) return next(err)
+                        var sql = "INSERT INTO `jaw-app`.`RealTimeDonutFG` (`water` , `swap` , `air`, `date`) VALUES (0, 0, 0, 0, ?);"
+                        connection.query(sql,[formatted_date_now],(err, results) => {
+                            if(err){
+                                return next(err)
+                            }else{
+                                res.json({
+                            success: "success",
+                            message: results,
+                            // message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
+                        })
+                            }
+                        })
+                    })
+                }
+            }
+        })
+    })
+}
+
 exports.updateFG = (req, res, next) => {
     var {
         body
@@ -1159,3 +1283,94 @@ exports.updateFG = (req, res, next) => {
         })
     })
 }
+
+exports.updateSTadST = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    var Tn = body.Tn
+    var PH = body.PH
+    var Salt = body.Salt
+    var Tss = body.Tss
+    var Histamine = body.Histamine
+    var SPG = body.SPG
+    var Aw = body.Aw
+
+    // console.log('updateFG : ' ,body)
+
+    var current_datetime = new Date()
+    let formatted_date_now = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + (current_datetime.getDate())
+    
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql = "UPDATE `jaw-app`.`RealTimeDonutST` SET `water` = `water`+? , `swap` = `swap`+? , `air`=`air`+?, WHERE date=?"
+        connection.query(sql, [Tn,PH,Salt,Tss,Histamine,SPG,Aw,formatted_date_now] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                res.json({
+                    success: "success",
+                    message: results,
+                })
+            }
+        })
+    })
+}
+
+exports.updateCardDS = (req, res, next) => {
+    var {
+        body
+    } = req;
+
+    var allOrder
+    var COA
+    var Recheck 
+
+    // console.log('updateFG : ' ,body)
+
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql = "SELECT * FROM `jaw-app`.Orders;"
+        connection.query(sql, [] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                allOrder = results.length
+                console.log('allOrder : ', allOrder)
+                req.getConnection((err, connection) => {
+                    if (err) return next(err)
+                    var sql = "UPDATE `jaw-app`.RealTimeCardDS SET ALLSample=?  WHERE idRealTimeCardDS = 1 ;"
+                    connection.query(sql, [allOrder] , (err, results) => {
+                        if(err){
+                            return next(err)
+                        }else{
+                            res.json({
+                                success: "success",
+                                message: results,
+                            })
+                        }
+                    })
+                })
+            }
+        })
+    })
+}
+
+exports.readCardDS = (req, res, next) => {
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql = "SELECT * FROM `jaw-app`.RealTimeCardDS;"
+        connection.query(sql, [] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                res.json({
+                    success: "success",
+                    message: results,
+                })
+            }
+        })
+    })
+}
+

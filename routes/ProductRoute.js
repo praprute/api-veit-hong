@@ -25,7 +25,12 @@ const { addOrder,
     Recheck,
     WaitMicro,
     readFG,
-    updateFG
+    updateFG,
+    readST,
+    updateSTadST,
+    addRealTimeOrder,
+    updateCardDS,
+    readCardDS
 
 } = require('../controller/ProductConotroller');
 
@@ -63,12 +68,20 @@ router.post('/updateSpecificChem', requireSignin,updateSpecificChem);
 router.post('/readAllSpecificChemById', requireSignin,readAllSpecificChemById);
 router.post('/DeleteSpecificChemById', requireSignin,DeleteSpecificChemById);
 router.post('/readRecheckOrder', requireSignin,readRecheckOrder);
-router.post('/readRealTimeOrder', requireSignin,readRealTimeOrder);
 router.post('/readAllSpecificBioById', requireSignin,readAllSpecificBioById);
 
-//Read FG
+//Card Dashboard
+router.post('/updateCardDS', requireSignin,updateCardDS);
+router.post('/readCardDS', requireSignin,readCardDS);
+
+//real time order
+router.post('/addRealTimeOrder', requireSignin,addRealTimeOrder);
+router.post('/readRealTimeOrder', requireSignin,readRealTimeOrder);
+//Read Chart FG ST
 router.post('/readFG', requireSignin,readFG);
 router.post('/updateFGadFG', requireSignin,updateFG);
+router.post('/readST', requireSignin,readST);
+router.post('/updateSTadST', requireSignin,updateSTadST);
 
 //Read test report
 router.post('/readTestReportlasted', requireSignin,readTestReportlasted);
