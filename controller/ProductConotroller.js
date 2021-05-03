@@ -981,7 +981,13 @@ function testResult(index){
 
             var bio = [] 
             // APC
-            if(index.APC >= index.APCMin && index.APC <= index.APCMax){
+            if(index.APC == null){
+                let apc = {
+                    int:false , coa:false , val:index.APC, key:'APC', keyInput:'APC'
+                }
+                bio.push(apc)
+            }else{
+                if(index.APC >= index.APCMin && index.APC <= index.APCMax){
                 let apc = {
                     int:true , coa:true , val:index.APC, key:'APC', keyInput:'APC'
                 }
@@ -992,7 +998,15 @@ function testResult(index){
                 }
                 bio.push(apc)
             }
+            }
+            
             // Yeasts & Molds
+            if(index.Yeasts == null){
+                let Yeasts = {
+                    int:false , coa:false , val:index.Yeasts, key:'Yeasts & Molds', keyInput:'Yeasts'
+                }
+                bio.push(Yeasts)
+            }else{
             if(index.Yeasts >= index.YeastsMin && index.Yeasts <= index.YeastsMax){
                 let Yeasts = {
                     int:true , coa:true , val:index.Yeasts, key:'Yeasts & Molds', keyInput:'Yeasts'
@@ -1004,20 +1018,36 @@ function testResult(index){
                 }
                 bio.push(Yeasts)
             }
+            }
+            
             // E. coil
-            if(index.EColi >= index.EColiMin && index.EColi <= index.EColiMax){
-                let EColi = {
-                    int:true , coa:true , val:index.EColi, key:'E. coil', keyInput:'EColi'
-                }
-                bio.push(EColi)
-            }else{
+            if(index.EColi == null){
                 let EColi = {
                     int:false , coa:false , val:index.EColi, key:'E. coil', keyInput:'EColi'
                 }
                 bio.push(EColi)
+            }else{
+        if(index.EColi >= index.EColiMin && index.EColi <= index.EColiMax){
+                        let EColi = {
+                            int:true , coa:true , val:index.EColi, key:'E. coil', keyInput:'EColi'
+                        }
+                        bio.push(EColi)
+                    }else{
+                        let EColi = {
+                            int:false , coa:false , val:index.EColi, key:'E. coil', keyInput:'EColi'
+                        }
+                        bio.push(EColi)
+                    }
             }
+            
             // Coliform
-            if(index.Coliform >= index.ColiformMin && index.Coliform <= index.ColiformMax){
+            if(index.Coliform == null){
+                let Coliform = {
+                    int:false , coa:false , val:index.Coliform, key:'Coliform', keyInput:'Coliform'
+                }
+                bio.push(Coliform)
+            }else{
+                if(index.Coliform >= index.ColiformMin && index.Coliform <= index.ColiformMax){
                 let Coliform = {
                     int:true , coa:true , val:index.Coliform, key:'Coliform', keyInput:'Coliform'
                 }
@@ -1028,8 +1058,16 @@ function testResult(index){
                 }
                 bio.push(Coliform)
             }
+            }
+            
             // S. aureus
-            if(index.Saureus >= index.SaureusMin && index.Saureus <= index.SaureusMax){
+            if(index.Saureus == null){
+                let Saureus = {
+                    int:false , coa:false , val:index.Saureus, key:'S. aureus', keyInput:'Saureus'
+                }
+                bio.push(Saureus)
+            }else{
+                if(index.Saureus >= index.SaureusMin && index.Saureus <= index.SaureusMax){
                 let Saureus = {
                     int:true , coa:true , val:index.Saureus, key:'S. aureus', keyInput:'Saureus'
                 }
@@ -1040,6 +1078,8 @@ function testResult(index){
                 }
                 bio.push(Saureus)
             }
+            }
+            
 
             TimeToTest.push({TimeTest : index.timestampTest})
             results.push(TestedIndex, bio, TimeToTest)
