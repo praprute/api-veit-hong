@@ -981,7 +981,7 @@ function testResult(index){
 
             var bio = [] 
             // APC
-            if(index.APC > index.APCMin && index.APC <= index.APCMax){
+            if(index.APC >= index.APCMin && index.APC <= index.APCMax){
                 let apc = {
                     int:true , coa:true , val:index.APC, key:'APC', keyInput:'APC'
                 }
@@ -993,7 +993,7 @@ function testResult(index){
                 bio.push(apc)
             }
             // Yeasts & Molds
-            if(index.Yeasts > index.YeastsMin && index.Yeasts <= index.YeastsMax){
+            if(index.Yeasts >= index.YeastsMin && index.Yeasts <= index.YeastsMax){
                 let Yeasts = {
                     int:true , coa:true , val:index.Yeasts, key:'Yeasts & Molds', keyInput:'Yeasts'
                 }
@@ -1005,7 +1005,7 @@ function testResult(index){
                 bio.push(Yeasts)
             }
             // E. coil
-            if(index.EColi > index.EColiMin && index.EColi <= index.EColiMax){
+            if(index.EColi >= index.EColiMin && index.EColi <= index.EColiMax){
                 let EColi = {
                     int:true , coa:true , val:index.EColi, key:'E. coil', keyInput:'EColi'
                 }
@@ -1017,7 +1017,7 @@ function testResult(index){
                 bio.push(EColi)
             }
             // Coliform
-            if(index.Coliform > index.ColiformMin && index.Coliform <= index.ColiformMax){
+            if(index.Coliform >= index.ColiformMin && index.Coliform <= index.ColiformMax){
                 let Coliform = {
                     int:true , coa:true , val:index.Coliform, key:'Coliform', keyInput:'Coliform'
                 }
@@ -1029,7 +1029,7 @@ function testResult(index){
                 bio.push(Coliform)
             }
             // S. aureus
-            if(index.Saureus > index.SaureusMin && index.Saureus <= index.SaureusMax){
+            if(index.Saureus >= index.SaureusMin && index.Saureus <= index.SaureusMax){
                 let Saureus = {
                     int:true , coa:true , val:index.Saureus, key:'S. aureus', keyInput:'Saureus'
                 }
