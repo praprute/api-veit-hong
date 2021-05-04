@@ -1011,7 +1011,7 @@ function testResult(index){
             }
             //SPG
             //console.log(index.SPGTest)
-            if(index.SPGTest > 0 && index.SPGTest <= index.SPG){
+            if(index.SPGTest >= 0 && index.SPGTest <= index.SPG){
                 let spg = {
                     int:true , coa:true , val:index.SPGTest, valSPG:index.SPGTest ,key:'SPG', temp:index.tempSPG ,keyInput:"SPG" , keyTemp:'TempSPG' , tkTemp:true
                 }
