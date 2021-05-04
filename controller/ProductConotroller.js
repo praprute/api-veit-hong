@@ -21,122 +21,166 @@ exports.addOrder = (req, res, next) => {
 
     // var insertIdOrder  = ""
     // console.log('add order : ', body)
-    if(pord !== 'Invalid date'){
-        if(bbe !== 'Invalid date'){
-            if(po !== ''){
-                if(productname !== '' ){
-                   if(size !== ''){
-                    if(quantity !== ''){
-                        if(idchem !== ''){
-                            if(idmicro !== ''){
-                                 if(priority !== ''){
-                                    req.getConnection((err, connection) => {
-                                        if (err) return next(err)
-                                        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority) \
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                                        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority] , (err, results) => {
-                                            if(err){
-                                                return next(err)
-                                            }else{
-                                                // console.log(results)
-                                                // insertIdOrder = insertId
-                                                // res.json({
-                                                //     success: "success",
-                                                //     message: results,
-                                                //     message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
-                                                // })
-                                                var idOrders  = results.insertId
-                                                req.getConnection((err, connection) => {
-                                                    if(err) return next(err)
-                                            
-                                                    var sql ="INSERT INTO `jaw-app`.`testResults` \
-                                                     ( `Recheck`, `idSpfChem`, \
-                                                    `Tn`, `PH`, `Salt`, `Tss`, \
-                                                    `Histamine`, `SPGTest`, `Aw`, \
-                                                    `idSpfMicro`, `APC`, \
-                                                    `Yeasts`, `EColi`, `Coliform`, \
-                                                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ? ) ; "
-                                                     connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, idmicro, null, null, null, null,
-                                                        null, idOrders, null , null , null, null
-                                                    ], (err, results) => {
-                                                        if(err){
-                                                            return next(err)
-                                                        }else{
-                                                            res.json({
-                                                                success: "success",
-                                                                message: results,
-                                                                idAddOrder : idOrders,
-                                                                message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
-                                                            })
-                                                        }
-                                                     })
-                                                })
-                                            }
-                                        })
-                                    })
-                                }else{
-                                        res.json({
-                                        success: "error",
-                                        // message: results,
-                                        message_th: "priority"
-                                    })
-                                }
-                            }else{
-                                res.json({
-                                    success: "error",
-                                    // message: results,
-                                    message_th: "idmicro"
-                                })
-                            }
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority) \
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority] , (err, results) => {
+            if(err){
+                return next(err)
+            }else{
+                // console.log(results)
+                // insertIdOrder = insertId
+                // res.json({
+                //     success: "success",
+                //     message: results,
+                //     message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+                // })
+                var idOrders  = results.insertId
+                req.getConnection((err, connection) => {
+                    if(err) return next(err)
+            
+                    var sql ="INSERT INTO `jaw-app`.`testResults` \
+                     ( `Recheck`, `idSpfChem`, \
+                    `Tn`, `PH`, `Salt`, `Tss`, \
+                    `Histamine`, `SPGTest`, `Aw`, \
+                    `idSpfMicro`, `APC`, \
+                    `Yeasts`, `EColi`, `Coliform`, \
+                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ? ) ; "
+                     connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, idmicro, null, null, null, null,
+                        null, idOrders, null , null , null, null
+                    ], (err, results) => {
+                        if(err){
+                            return next(err)
                         }else{
                             res.json({
-                                success: "error",
-                                // message: results,
-                                message_th: "idchem"
+                                success: "success",
+                                message: results,
+                                idAddOrder : idOrders,
+                                message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
                             })
                         }
-                    }else{
-                            res.json({
-                            success: "error",
-                            // message: results,
-                            message_th: "quantity"
-                        })
-                    }
-                    }else{
-                        res.json({
-                            success: "error",
-                            // message: results,
-                            message_th: "size"
-                        })
-                    }
-                }else{
-                         res.json({
-                        success: "error",
-                        // message: results,
-                        message_th: "productname"
-                    })
-                }
-            }else{
-                res.json({
-                    success: "error",
-                    // message: results,
-                    message_th: "po"
+                     })
                 })
             }
-        }else{
-            res.json({
-            success: "error",
-            // message: results,
-            message_th: "bbe"
         })
-        }
-    }else{
-        res.json({
-            success: "error",
-            // message: results,
-            message_th: "pord"
-        })
-    } 
+    })
+    // if(pord !== 'Invalid date'){
+    //     if(bbe !== 'Invalid date'){
+    //         if(po !== ''){
+    //             if(productname !== '' ){
+    //                if(size !== ''){
+    //                 if(quantity !== ''){
+    //                     if(idchem !== ''){
+    //                         if(idmicro !== ''){
+    //                              if(priority !== ''){
+    //                                 req.getConnection((err, connection) => {
+    //                                     if (err) return next(err)
+    //                                     var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority) \
+    //                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    //                                     connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority] , (err, results) => {
+    //                                         if(err){
+    //                                             return next(err)
+    //                                         }else{
+    //                                             // console.log(results)
+    //                                             // insertIdOrder = insertId
+    //                                             // res.json({
+    //                                             //     success: "success",
+    //                                             //     message: results,
+    //                                             //     message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+    //                                             // })
+    //                                             var idOrders  = results.insertId
+    //                                             req.getConnection((err, connection) => {
+    //                                                 if(err) return next(err)
+                                            
+    //                                                 var sql ="INSERT INTO `jaw-app`.`testResults` \
+    //                                                  ( `Recheck`, `idSpfChem`, \
+    //                                                 `Tn`, `PH`, `Salt`, `Tss`, \
+    //                                                 `Histamine`, `SPGTest`, `Aw`, \
+    //                                                 `idSpfMicro`, `APC`, \
+    //                                                 `Yeasts`, `EColi`, `Coliform`, \
+    //                                                 `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ? ) ; "
+    //                                                  connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, idmicro, null, null, null, null,
+    //                                                     null, idOrders, null , null , null, null
+    //                                                 ], (err, results) => {
+    //                                                     if(err){
+    //                                                         return next(err)
+    //                                                     }else{
+    //                                                         res.json({
+    //                                                             success: "success",
+    //                                                             message: results,
+    //                                                             idAddOrder : idOrders,
+    //                                                             message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+    //                                                         })
+    //                                                     }
+    //                                                  })
+    //                                             })
+    //                                         }
+    //                                     })
+    //                                 })
+    //                             }else{
+    //                                     res.json({
+    //                                     success: "error",
+    //                                     // message: results,
+    //                                     message_th: "priority"
+    //                                 })
+    //                             }
+    //                         }else{
+    //                             res.json({
+    //                                 success: "error",
+    //                                 // message: results,
+    //                                 message_th: "idmicro"
+    //                             })
+    //                         }
+    //                     }else{
+    //                         res.json({
+    //                             success: "error",
+    //                             // message: results,
+    //                             message_th: "idchem"
+    //                         })
+    //                     }
+    //                 }else{
+    //                         res.json({
+    //                         success: "error",
+    //                         // message: results,
+    //                         message_th: "quantity"
+    //                     })
+    //                 }
+    //                 }else{
+    //                     res.json({
+    //                         success: "error",
+    //                         // message: results,
+    //                         message_th: "size"
+    //                     })
+    //                 }
+    //             }else{
+    //                      res.json({
+    //                     success: "error",
+    //                     // message: results,
+    //                     message_th: "productname"
+    //                 })
+    //             }
+    //         }else{
+    //             res.json({
+    //                 success: "error",
+    //                 // message: results,
+    //                 message_th: "po"
+    //             })
+    //         }
+    //     }else{
+    //         res.json({
+    //         success: "error",
+    //         // message: results,
+    //         message_th: "bbe"
+    //     })
+    //     }
+    // }else{
+    //     res.json({
+    //         success: "error",
+    //         // message: results,
+    //         message_th: "pord"
+    //     })
+    // } 
 }
 
 exports.updateOrder = (req, res, next) => {
