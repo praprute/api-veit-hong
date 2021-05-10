@@ -7,7 +7,7 @@ const myConnection = require('express-myconnection')
 const dbOption = require('./config')
 const authRoutes = require('./routes/AuthRoute');
 const productRoute = require('./routes/ProductRoute')
-const PORT = 3031;
+const PORT = 8000;
 
 app.use(cors())
 app.use(bodyParser.json());
