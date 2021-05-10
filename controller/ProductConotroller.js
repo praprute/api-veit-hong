@@ -196,7 +196,6 @@ exports.updateOrder = (req, res, next) => {
         body
     } = req;
 
-    console.log(body)
 
     var pord        = body.PORD
     var bbe         = body.BBE
@@ -251,7 +250,6 @@ exports.reSend = (req, res, next) => {
         body
     } = req;
 
-    // console.log(body)
 
     var idOrders    = body.idOrders
 
