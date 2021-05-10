@@ -932,7 +932,12 @@ function testResult(index){
         var TestedIndex = []
         var TimeToTest = []
             //TN
-            if(index.Tn >= index.TnMain && index.Tn <= index.TnMax ){
+            if(index.Tn == null){
+                let tnn = {
+                    render:index.TnC , int:false , coa:false, val:index.Tn, valTn:index.Tn , key:'TN(g/L)' , temp:false , keyInput:"Tn" , tkTemp:false
+                }
+                TestedIndex.push(tnn)
+            }else if(index.Tn >= index.TnMain && index.Tn <= index.TnMax ){
                 let tnn = {
                     render:index.TnC ,int:true , coa:true , val:index.Tn, valTn:index.Tn , key:'TN(g/L)' , temp:false , keyInput:"Tn"  , tkTemp:false
                 }
@@ -943,8 +948,14 @@ function testResult(index){
                 }
                 TestedIndex.push(tnn)
             }
+            
             //Salt
-            if(index.Salt >= index.SaltControlMin && index.Salt <= index.SaltCOAMax ){
+            if(index.Salt == null){
+                let Salt = {
+                    render:index.SaltC ,  int:false , coa:false, val:index.Salt, valSalt:index.Salt ,  key:'%Salt(w/v)' , temp:false ,keyInput:"Salt", tkTemp:false
+                }
+                TestedIndex.push(Salt)
+            }else if(index.Salt >= index.SaltControlMin && index.Salt <= index.SaltCOAMax ){
                 if(index.Salt <= index.SaltCOAMin){
                 let Salt = {
                     render:index.SaltC , int:true , coa:true, val:index.SaltCOAMin, valSalt:index.SaltCOAMin , key:'%Salt(w/v)' , temp:false ,keyInput:"Salt", tkTemp:false
@@ -962,6 +973,7 @@ function testResult(index){
                 }
                 TestedIndex.push(Salt)
             }
+            
             //Histamine
             //console.log('index.Histamine : ', index.Histamine)
             if(index.Histamine == null){
