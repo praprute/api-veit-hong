@@ -9,15 +9,20 @@ const authRoutes = require('./routes/AuthRoute');
 const productRoute = require('./routes/ProductRoute')
 const PORT = 8000;
 
-app.use(cors())
+app.use(cors({
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "preflightContinue": false,
+    "optionsSuccessStatus": 204
+  }))
 app.use(bodyParser.json());
 app.use(express.json())
 // console.log(dbOption)
 
 var connection = mysql.createConnection({
     host: '127.0.0.1',
-    user: 'admin',
-    password: '0990576878JUNIOR',
+    user: 'root',
+    password: '12345678',
     port: 3306,
     database: 'jaw-app',
     dateStrings: true,
