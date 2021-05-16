@@ -27,13 +27,14 @@ exports.addOrder = (req, res, next) => {
     var SPG         = body.Spg 
     var Aw          = body.Aw 
 
+    var Micro       = body.Micro
     // var insertIdOrder  = ""
     // console.log('add order : ', body)
     req.getConnection((err, connection) => {
         if (err) return next(err)
-        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority, Tn, PH, Salt, Tss , Histamine, Spg, Aw) \
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?)"
-        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority ,Tn, PH, Salt, Tss, Histamine, SPG, Aw] , (err, results) => {
+        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority, Tn, PH, Salt, Tss , Histamine, Spg, Aw, Micro) \
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)"
+        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority ,Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro] , (err, results) => {
             if(err){
                 return next(err)
             }else{
@@ -54,9 +55,9 @@ exports.addOrder = (req, res, next) => {
                     `Histamine`, `SPGTest`, `Aw`, \
                     `idSpfMicro`, `APC`, \
                     `Yeasts`, `EColi`, `Coliform`, \
-                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG`,  `TnC`, `PHC`, `SaltC`, `TssC`, `HistamineC`, `SpgC`, `AwC` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ?, ?, ?, ?, ?, ?, ?, ? ) ; "
+                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG`,  `TnC`, `PHC`, `SaltC`, `TssC`, `HistamineC`, `SpgC`, `AwC`, `MicroC` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ?, ?, ?, ?, ?, ?, ?, ?, ? ) ; "
                      connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, idmicro, null, null, null, null,
-                        null, idOrders, null , null , null, null, Tn, PH, Salt, Tss, Histamine, SPG, Aw
+                        null, idOrders, null , null , null, null, Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro
                     ], (err, results) => {
                         if(err){
                             return next(err)
@@ -215,20 +216,20 @@ exports.updateOrder = (req, res, next) => {
     var Histamine   = body.Histamine 
     var SPG         = body.Spg 
     var Aw          = body.Aw 
-
+    var Micro       = body.Micro
     req.getConnection((err, connection) => {
         if (err) return next(err)
 
-        var sql = "UPDATE `jaw-app`.`Orders` SET  PORD=?, BBE=?, PO=?, ProductName=?, Size=?, Quantity=?, idScfChem=?, idScfMicro=?, Priority=? ,Tn=? , PH =? , Salt=?, Tss=?, Histamine=?, Spg=?, Aw=? \
+        var sql = "UPDATE `jaw-app`.`Orders` SET  PORD=?, BBE=?, PO=?, ProductName=?, Size=?, Quantity=?, idScfChem=?, idScfMicro=?, Priority=? ,Tn=? , PH =? , Salt=?, Tss=?, Histamine=?, Spg=?, Aw=? ,Micro=?\
         WHERE idOrders=?"
-        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority, Tn, PH, Salt, Tss, Histamine, SPG, Aw , idOrders] , (err, results) => {
+        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority, Tn, PH, Salt, Tss, Histamine, SPG, Aw , Micro, idOrders] , (err, results) => {
             if(err){
                 return next(err)
             }else{
                 var sql2 ="UPDATE `jaw-app`.`testResults` SET  \
                             TnC = ? , PHC =? , SaltC = ? , TssC = ?, \
-                            HistamineC = ? , SpgC = ?, AwC = ? WHERE idOrderTested = ? "
-                    connection.query(sql2, [Tn, PH, Salt, Tss, Histamine, SPG, Aw , idOrders], (err, results) => {
+                            HistamineC = ? , SpgC = ?, AwC = ?, MicroC=? WHERE idOrderTested = ? "
+                    connection.query(sql2, [Tn, PH, Salt, Tss, Histamine, SPG, Aw , Micro, idOrders], (err, results) => {
                         if(err){
                             return next(err)
                         }else{
