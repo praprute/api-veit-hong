@@ -3,7 +3,34 @@ const expressJwt = require('express-jwt')
 const config = require('./../config');
 const { connect } = require('pm2');
 const imageToBase64 = require('image-to-base64');
+var request = require('request');
+var tokenLineLab = '5utV0rqbi4biDTTFGi2YEeBOCIoVFVlaa8UKvP06iRf'
 
+
+function SendLineSample(){
+    request({
+        method: 'POST',
+        uri: 'https://notify-api.line.me/api/notify',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        auth: {
+          'bearer': tokenLineLab
+        },
+        form: {
+          message: `มีการส่งตัวอย่าง`
+        }
+      }, (err, httpResponse, body) => {
+        if(err){
+          console.log(err);
+        } else {
+          res.json({
+            httpResponse: httpResponse,
+            body: body
+          });
+        }
+      });
+}
 exports.addOrder = (req, res, next) => {
     var {
         body
@@ -27,14 +54,33 @@ exports.addOrder = (req, res, next) => {
     var SPG         = body.Spg 
     var Aw          = body.Aw 
 
+    var AN          = body.AN
+    var Acidity     = body.Acidity
+    var Viscosity   = body.Viscosity
+
     var Micro       = body.Micro
+
+    var ChemResponseLine = [
+        {component: 'Tn' , value: body.Tn},
+        {component: 'PH' , value: body.PH},
+        {component: 'Salt' , value: body.Salt},
+        {component: 'Tss' , value: body.Tss},
+        {component: 'Histamine' , value: body.Histamine},
+        {component: 'SPG' , value: body.Spg},
+        {component: 'Aw' , value: body.Aw},
+        {component: 'AN' , value: body.AN},
+        {component: 'Acidity' , value: body.Acidity},
+        {component: 'Viscosity' , value: body.Viscosity},
+    ]
+
+    console.log(body)
     // var insertIdOrder  = ""
     // console.log('add order : ', body)
     req.getConnection((err, connection) => {
         if (err) return next(err)
-        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority, Tn, PH, Salt, Tss , Histamine, Spg, Aw, Micro) \
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)"
-        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority ,Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro] , (err, results) => {
+        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority, Tn, PH, Salt, Tss , Histamine, Spg, Aw, Micro, AN, Acidity, Viscosity) \
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?, ?, ?, ?)"
+        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority ,Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro, AN, Acidity, Viscosity] , (err, results) => {
             if(err){
                 return next(err)
             }else{
@@ -52,22 +98,70 @@ exports.addOrder = (req, res, next) => {
                     var sql ="INSERT INTO `jaw-app`.`testResults` \
                      ( `Recheck`, `idSpfChem`, \
                     `Tn`, `PH`, `Salt`, `Tss`, \
-                    `Histamine`, `SPGTest`, `Aw`, \
+                    `Histamine`, `SPGTest`, `Aw`, `AN`, `Acidity`, `Viscosity`,\
                     `idSpfMicro`, `APC`, \
                     `Yeasts`, `EColi`, `Coliform`, \
-                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG`,  `TnC`, `PHC`, `SaltC`, `TssC`, `HistamineC`, `SpgC`, `AwC`, `MicroC` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ?, ?, ?, ?, ?, ?, ?, ?, ? ) ; "
-                     connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, idmicro, null, null, null, null,
-                        null, idOrders, null , null , null, null, Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro
+                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG`,  `TnC`, `PHC`, `SaltC`, `TssC`, `HistamineC`, `SpgC`, `AwC`, `MicroC`, `ANC`, `AcidityC`, `ViscosityC` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ?, ?, ?, ?, ?, ?, ?, ?, ? ) ; "
+                     connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, null, null, null,  idmicro, null, null, null, null,
+                        null, idOrders, null , null , null, null, Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro, AN, Acidity, Viscosity
                     ], (err, results) => {
                         if(err){
                             return next(err)
                         }else{
-                            res.json({
-                                success: "success",
-                                message: results,
-                                idAddOrder : idOrders,
-                                message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+
+                            // console.log('results : ', results)
+
+                            req.getConnection((err, connection) => {
+                                if(err) next(err)
+
+                                var sqlLine = " SELECT name FROM `jaw-app`.PdSpecificChem where idPdSpecificChem = ? "
+                                connection.query(sqlLine, [idchem], (err, results3) => {
+                                    if(err){
+                                        return next(err)
+                                    }else{
+                                        // console.log('results3 :', results3)
+                                        res.json({
+                                            success: "success",
+                                            // message: results,
+                                            idAddOrder : idOrders,
+                                            message_th: "ทำการเพิ่ม order ลงรายงการเรียบร้อย"
+                                        })
+
+                                        let messageSampleObject = []
+                                            for(let i = 0 ; i < ChemResponseLine.length ; i++){
+                                                // console.log('ChemResponseLine : ', ChemResponseLine)
+                                                if(ChemResponseLine[i].value == true){
+                                                    messageSampleObject.push(ChemResponseLine[i].component)
+                                                }
+                                            }
+
+                                            request({
+                                                method: 'POST',
+                                                uri: 'https://notify-api.line.me/api/notify',
+                                                headers: {
+                                                  'Content-Type': 'application/x-www-form-urlencoded'
+                                                },
+                                                auth: {
+                                                  'bearer': tokenLineLab
+                                                },
+                                                form: {
+                                                  message: `มีการส่งตัวอย่างชื่อ ${productname} สูตร ${JSON.stringify(results3[0].name)} ต้องทำการตรวจวัด ${messageSampleObject.toString().trim()}`
+                                                }
+                                              }, (err, httpResponse, body) => {
+                                                if(err){
+                                                  console.log(err);
+                                                } else {
+                                                //   res.json({
+                                                //     httpResponse: httpResponse,
+                                                //     body: body
+                                                //   });
+                                                }
+                                              });
+                                    }
+                                })
                             })
+                            
+                            
                         }
                      })
                 })
@@ -217,19 +311,24 @@ exports.updateOrder = (req, res, next) => {
     var SPG         = body.Spg 
     var Aw          = body.Aw 
     var Micro       = body.Micro
+
+    var AN          = body.AN
+    var Acidity     = body.Acidity
+    var Viscosity   = body.Viscosity
+
     req.getConnection((err, connection) => {
         if (err) return next(err)
 
-        var sql = "UPDATE `jaw-app`.`Orders` SET  PORD=?, BBE=?, PO=?, ProductName=?, Size=?, Quantity=?, idScfChem=?, idScfMicro=?, Priority=? ,Tn=? , PH =? , Salt=?, Tss=?, Histamine=?, Spg=?, Aw=? ,Micro=?\
-        WHERE idOrders=?"
-        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority, Tn, PH, Salt, Tss, Histamine, SPG, Aw , Micro, idOrders] , (err, results) => {
+        var sql = "UPDATE `jaw-app`.`Orders` SET  PORD=?, BBE=?, PO=?, ProductName=?, Size=?, Quantity=?, idScfChem=?, idScfMicro=?, Priority=? ,Tn=? , PH =? , Salt=?, Tss=?, Histamine=?, Spg=?, Aw=? ,Micro=? ,\
+        AN=?, Acidity=?, Viscosity=? WHERE idOrders=?"
+        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority, Tn, PH, Salt, Tss, Histamine, SPG, Aw , Micro, AN, Acidity, Viscosity, idOrders] , (err, results) => {
             if(err){
                 return next(err)
             }else{
                 var sql2 ="UPDATE `jaw-app`.`testResults` SET  \
                             TnC = ? , PHC =? , SaltC = ? , TssC = ?, \
-                            HistamineC = ? , SpgC = ?, AwC = ?, MicroC=? WHERE idOrderTested = ? "
-                    connection.query(sql2, [Tn, PH, Salt, Tss, Histamine, SPG, Aw , Micro, idOrders], (err, results) => {
+                            HistamineC = ? , SpgC = ?, AwC = ?, ANC = ?, AcidityC = ?, ViscosityC = ? ,MicroC=? WHERE idOrderTested = ? "
+                    connection.query(sql2, [Tn, PH, Salt, Tss, Histamine, SPG, Aw , AN, Acidity, Viscosity, Micro, idOrders], (err, results) => {
                         if(err){
                             return next(err)
                         }else{
@@ -880,6 +979,10 @@ exports.Addtestreport = (req, res, next) => {
     var Histamine   = body.Histamine 
     var SPG         = body.SPG 
     var Aw          = body.Aw 
+    var AN          = body.AN
+    var Acidity     = body.Acidity
+    var Viscosity   = body.Viscosity
+
     var idSpfMicro  = body.idSpfMicro 
     var APC         = body.APC 
     var Yeasts      = body.Yeasts 
@@ -909,10 +1012,10 @@ exports.Addtestreport = (req, res, next) => {
         Histamine = ? , SPGTest = ?, Aw = ?, \
         idSpfMicro = ?, APC = ?, \
         Yeasts = ?, EColi = ?, Coliform = ? , \
-        Saureus = ? , tempPH = ? , tempAW = ? , tempTss = ?  , tempSPG = ? WHERE idOrderTested = ? "
+        Saureus = ? , tempPH = ? , tempAW = ? , tempTss = ?  , tempSPG = ? , AN = ?, Acidity = ?, Viscosity = ? WHERE idOrderTested = ? "
          connection.query(sql, [ Recheck, idSpfChem, Tn,
         PH, Salt, Tss, Histamine, SPG, Aw, idSpfMicro, APC, Yeasts, EColi, Coliform,
-        Saureus, TempPH , TempAW , TempTSS, TempSPG, idOrders
+        Saureus, TempPH , TempAW , TempTSS, TempSPG, AN, Acidity, Viscosity, idOrders
         ], (err, results) => {
             if(err){
                 return next(err)
@@ -928,6 +1031,7 @@ exports.Addtestreport = (req, res, next) => {
 }
 
 function testResult(index){
+    // console.log('testResult ' , index)
     if(index){
         var results = []
         var TestedIndex = []
@@ -994,7 +1098,12 @@ function testResult(index){
                 TestedIndex.push(His)
             }
             //PH
-            if(index.PH >= index.PHControlMin && index.PH <= index.PHCOAMax ){
+            if(index.PH == null){
+                let phh = {
+                    render:index.PHC ,int:false , coa:false, val:index.PH, valPH:index.PH  , key:'PH' , temp:index.tempPH , keyInput:"PH", keyTemp:'TempPH' , tkTemp:true
+                }
+                TestedIndex.push(phh)
+            }else if(index.PH >= index.PHControlMin && index.PH <= index.PHCOAMax ){
                 if(index.PH <= index.PHCOAMin){
                     let phh = {
                         render:index.PHC ,int:true , coa:true, val:index.PHCOAMin, valPH:index.PHCOAMin ,  key:'PH' , temp:index.tempPH , keyInput:"PH" , keyTemp:'TempPH' , tkTemp:true
@@ -1063,6 +1172,60 @@ function testResult(index){
                     render:index.SpgC ,int:false , coa:false , val:index.SPGTest, valSPG:index.SPGTest, key:'SPG', temp:index.tempSPG ,keyInput:"SPG" , keyTemp:'TempSPG' , tkTemp:true
                 }
                 TestedIndex.push(spg)
+            }
+
+            //AN
+            if(index.AN == null){
+                let AN = {
+                    render:index.ANC ,int:false , coa:false , val:index.AN, valAN:index.AN , key:'AN' , temp:false ,keyInput:"AN", tkTemp:false
+                }
+                TestedIndex.push(AN)
+            }else if(index.AN >= index.ANMin && index.AN <= index.ANMax){
+                let AN = {
+                    render:index.ANC ,int:true , coa:true , val:index.AN, valAN:index.AN, key:'AN' , temp:false ,keyInput:"AN", tkTemp:false
+                }
+                TestedIndex.push(AN)
+            }else{
+                let AN = {
+                    render:index.ANC ,int:false , coa:false , val:index.AN, valAN:index.AN , key:'AN' , temp:false ,keyInput:"AN", tkTemp:false
+                }
+                TestedIndex.push(AN)
+            }
+
+            //Acidity
+            if(index.Acidity == null){
+                let Acidity = {
+                    render:index.AcidityC ,int:false , coa:false , val:index.Acidity, valAcidity:index.Acidity , key:'Acidity' , temp:false ,keyInput:"Acidity", tkTemp:false
+                }
+                TestedIndex.push(Acidity)
+            }else if(index.Acidity >= index.AcidityMin && index.Acidity <= index.AcidityMax){
+                let Acidity = {
+                    render:index.AcidityC ,int:true , coa:true , val:index.Acidity, valAcidity:index.Acidity, key:'Acidity' , temp:false ,keyInput:"Acidity", tkTemp:false
+                }
+                TestedIndex.push(Acidity)
+            }else{
+                let Acidity = {
+                    render:index.AcidityC ,int:false , coa:false , val:index.Acidity, valAcidity:index.Acidity , key:'Acidity' , temp:false ,keyInput:"Acidity", tkTemp:false
+                }
+                TestedIndex.push(Acidity)
+            }
+
+            //Viscosity
+            if(index.Viscosity == null){
+                let Viscosity = {
+                    render:index.ViscosityC ,int:false , coa:false , val:index.Viscosity, valViscosity:index.Viscosity , key:'Viscosity' , temp:false ,keyInput:"Viscosity", tkTemp:false
+                }
+                TestedIndex.push(Viscosity)
+            }else if(index.Viscosity >= index.ViscosityMin && index.Viscosity <= index.ViscosityMax){
+                let Viscosity = {
+                    render:index.ViscosityC ,int:true , coa:true , val:index.Viscosity, valViscosity:index.Viscosity, key:'Viscosity' , temp:false ,keyInput:"Viscosity", tkTemp:false
+                }
+                TestedIndex.push(Viscosity)
+            }else{
+                let Viscosity = {
+                    render:index.ViscosityC ,int:false , coa:false , val:index.Viscosity, valViscosity:index.Viscosity , key:'Viscosity' , temp:false ,keyInput:"Viscosity", tkTemp:false
+                }
+                TestedIndex.push(Viscosity)
             }
             
 
@@ -1316,7 +1479,7 @@ exports.readFG = (req, res, next) => {
                 }else{
                     req.getConnection((err, connection) => {
                         if(err) return next(err)
-                        var sql = "INSERT INTO `jaw-app`.`RealTimeDonutFG` (`TN` , `PH` , `SALT`, `TSS`, `HISTAMINE`, `SPG`, `AW`, `date`) VALUES (0, 0, 0, 0, 0, 0, 0, ?);"
+                        var sql = "INSERT INTO `jaw-app`.`RealTimeDonutFG` (`TN` , `PH` , `SALT`, `TSS`, `HISTAMINE`, `SPG`, `AW`, `AN`, `Acidity`, `Viscosity`, `date`) VALUES (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ?);"
                         connection.query(sql,[formatted_date_now],(err, results) => {
                             if(err){
                                 return next(err)
@@ -1394,16 +1557,19 @@ exports.updateFG = (req, res, next) => {
     var Histamine = body.Histamine
     var SPG = body.SPG
     var Aw = body.Aw
+    var AN = body.AN
+    var Acidity = body.Acidity
+    var Viscosity   = body.Viscosity
 
-    // console.log('updateFG : ' ,body)
+    console.log('updateFG : ' ,body)
 
     var current_datetime = new Date()
     let formatted_date_now = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + (current_datetime.getDate())
     
     req.getConnection((err, connection) => {
         if (err) return next(err)
-        var sql = "UPDATE `jaw-app`.`RealTimeDonutFG` SET `TN` = `TN`+? , `PH` = `PH`+? , `SALT`=`SALT`+?, `TSS`=`TSS`+?, `HISTAMINE`=`HISTAMINE`+?, `SPG`=`SPG`+?, `AW`=`AW`+? WHERE date=?"
-        connection.query(sql, [Tn,PH,Salt,Tss,Histamine,SPG,Aw,formatted_date_now] , (err, results) => {
+        var sql = "UPDATE `jaw-app`.`RealTimeDonutFG` SET `TN` = `TN`+? , `PH` = `PH`+? , `SALT`=`SALT`+?, `TSS`=`TSS`+?, `HISTAMINE`=`HISTAMINE`+?, `SPG`=`SPG`+?, `AW`=`AW`+?  ,`AN`=`AN`+? , `Acidity`=`Acidity`+? , `Viscosity`=`Viscosity`+? WHERE date=? "
+        connection.query(sql, [Tn,PH,Salt,Tss,Histamine,SPG,Aw, AN, Acidity, Viscosity, formatted_date_now] , (err, results) => {
             if(err){
                 return next(err)
             }else{
@@ -1577,3 +1743,27 @@ exports.UpdatexportPASS = (req, res, next) => {
                 })
     })
 }
+
+exports.PassToCheck = (req, res, next) => {
+    var {
+        body
+    }= req;
+    var idOrders    = body.idOrders
+    // console.log('UpdatexportCOA : ', body)
+    req.getConnection((err, connection) => {
+        if (err) return next(err)
+        var sql2 = "UPDATE `jaw-app`.`Orders` SET Status=4 WHERE idOrders = ?"
+                connection.query(sql2, [idOrders] , (err, results) => {
+                    if(err){
+                        return next(err)
+                    }else{
+                        res.json({
+                            success: "success",
+                            message: results,
+                        })
+                    }
+                })
+    })
+}
+
+  
