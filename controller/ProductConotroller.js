@@ -1087,7 +1087,7 @@ function testResult(index){
                 }
                 TestedIndex.push(His)
             }else if(index.Histamine >= index.HistamineMin && index.Histamine <= index.HistamineMax){
-                let His = {
+                let His = {     
                     render:index.HistamineC ,int:true , coa:true , val:index.Histamine, valHistamine:index.Histamine, key:'Histamine(ppm)' , temp:false ,keyInput:"Histamine", tkTemp:false
                 }
                 TestedIndex.push(His)
