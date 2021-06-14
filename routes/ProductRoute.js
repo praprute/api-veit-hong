@@ -34,7 +34,8 @@ const { addOrder,
     exportCOA,
     UpdatexportCOA,
     UpdatexportPASS,
-    PassToCheck
+    PassToCheck,
+    CustomersName
 
 } = require('../controller/ProductConotroller');
 
@@ -113,4 +114,6 @@ router.post('/exportCOA', requireSignin,exportCOA);
 router.post('/UpdatexportCOA', requireSignin,UpdatexportCOA);
 router.post('/UpdatexportPASS', requireSignin,UpdatexportPASS);
 
+//Get Customers
+router.get('/getCustomers' , requireSignin,CustomersName);
 module.exports = router;
