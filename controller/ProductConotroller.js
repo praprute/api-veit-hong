@@ -5,8 +5,9 @@ const { connect } = require('pm2');
 const imageToBase64 = require('image-to-base64');
 var request = require('request');
 var tokenLineLab = '5utV0rqbi4biDTTFGi2YEeBOCIoVFVlaa8UKvP06iRf'
-
-
+var tokenLineProduction = '4NDaXviNWZub9nXzKHPwnKSt07xAmG4aqOLwNzlHhjd'
+// 5utV0rqbi4biDTTFGi2YEeBOCIoVFVlaa8UKvP06iRf
+// 4NDaXviNWZub9nXzKHPwnKSt07xAmG4aqOLwNzlHhjd
 function SendLineSample(){
     request({
         method: 'POST',
@@ -73,7 +74,7 @@ exports.addOrder = (req, res, next) => {
         {component: 'Viscosity' , value: body.Viscosity},
     ]
 
-    console.log(body)
+    // console.log(body)
     // var insertIdOrder  = ""
     // console.log('add order : ', body)
     req.getConnection((err, connection) => {
@@ -1561,7 +1562,7 @@ exports.updateFG = (req, res, next) => {
     var Acidity = body.Acidity
     var Viscosity   = body.Viscosity
 
-    console.log('updateFG : ' ,body)
+    // console.log('updateFG : ' ,body)
 
     var current_datetime = new Date()
     let formatted_date_now = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + (current_datetime.getDate())
@@ -1695,8 +1696,33 @@ exports.exportCOA = (req, res, next) => {
         ) 
         }
     })
-   
 }
+
+exports.loadHalalLogo = (req, res, next) => {
+    // console.log('exportCOA')
+    req.getConnection((err, connection) => {
+        if (err){
+            return next(err)
+        }else{
+            imageToBase64("https://jaw.sgp1.digitaloceanspaces.com/Halalpngeng.png") // Path to the image
+        .then(
+            (response) => {
+                res.json({
+                    success: "success",
+                    message: response,
+                })
+                // console.log(response); // "cGF0aC90by9maWxlLmpwZw=="
+            }
+        )
+        .catch(
+            (error) => {
+                // console.log(error); // Logs an error if there was one
+            }
+        ) 
+        }
+    })
+}
+// https://jaw.sgp1.digitaloceanspaces.com/Halalpngeng.png
 
 exports.UpdatexportCOA = (req, res, next) => {
     var {
@@ -1748,7 +1774,8 @@ exports.PassToCheck = (req, res, next) => {
     var {
         body
     }= req;
-    var idOrders    = body.idOrders
+    var idOrders    = body.idOrders.idOrders
+    var pn = body.ProductName
     // console.log('UpdatexportCOA : ', body)
     req.getConnection((err, connection) => {
         if (err) return next(err)
@@ -1761,10 +1788,47 @@ exports.PassToCheck = (req, res, next) => {
                             success: "success",
                             message: results,
                         })
+                        request({
+                          method: 'POST',
+                          uri: 'https://notify-api.line.me/api/notify',
+                          headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                          },
+                          auth: {
+                            'bearer': tokenLineProduction
+                          },
+                          form: {
+                            message: `${pn} status complete check `
+                          }
+                        }, (err, httpResponse, body) => {
+                          if(err){
+                            console.log(err);
+                          } else {
+                          }
+                        });
                     }
                 })
     })
 }
+// 4NDaXviNWZub9nXzKHPwnKSt07xAmG4aqOLwNzlHhjd
+// request({
+//     method: 'POST',
+//     uri: 'https://notify-api.line.me/api/notify',
+//     headers: {
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     },
+//     auth: {
+//       'bearer': tokenLineProduction
+//     },
+//     form: {
+//       message: `มีการส่งตัวอย่างชื่อ ${productname} สูตร ${JSON.stringify(results3[0].name)} ต้องทำการตรวจวัด ${messageSampleObject.toString().trim()}`
+//     }
+//   }, (err, httpResponse, body) => {
+//     if(err){
+//       console.log(err);
+//     } else {
+//     }
+//   });
 
 exports.CustomersName = (req, res, next) => {
     req.getConnection((err, connection) => {

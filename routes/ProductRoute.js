@@ -35,8 +35,8 @@ const { addOrder,
     UpdatexportCOA,
     UpdatexportPASS,
     PassToCheck,
-    CustomersName
-
+    CustomersName,
+    loadHalalLogo
 } = require('../controller/ProductConotroller');
 
 // const status = {
@@ -108,9 +108,11 @@ router.post('/readIdMicroCheckbox', requireSignin,readIdMicro);
 router.post('/UpdateStatus/PassToCheck', requireSignin,PassToCheck);
 // router.post('/UpdateStatus/PassOrder', requireSignin,UpdatexportPASS);
 
+//Upload Logo
+router.post('/exportCOA', requireSignin,exportCOA);
+router.post('/loadHalalLogo', requireSignin,loadHalalLogo);
 
 //exportCOA
-router.post('/exportCOA', requireSignin,exportCOA);
 router.post('/UpdatexportCOA', requireSignin,UpdatexportCOA);
 router.post('/UpdatexportPASS', requireSignin,UpdatexportPASS);
 
