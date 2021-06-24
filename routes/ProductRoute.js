@@ -59,7 +59,6 @@ const { requireSignin } = require('../controller/authController')
 router.post('/addOrder', requireSignin,addOrder);
 router.post('/updateOrder', requireSignin,updateOrder);
 router.post('/deleteOrder', requireSignin,deleteOrder);
-router.post('/reSend', requireSignin,reSend);
 
 router.post('/readAllOrder', requireSignin,readAllOrder);
 router.post('/readOrdertoCheck', requireSignin,readOrdertoCheck);
@@ -96,6 +95,7 @@ router.post('/Addtestreport', requireSignin,Addtestreport);
 
 //Recheck
 router.post('/Recheck', requireSignin,Recheck);
+router.post('/reSend', requireSignin,reSend);
 
 //wait micro
 router.post('/WaitMicro', requireSignin,WaitMicro);

@@ -351,9 +351,9 @@ exports.reSend = (req, res, next) => {
         body
     } = req;
 
-
     var idOrders    = body.idOrders
-
+    var ProductName = body.ProductName
+    var Spc         = body.Spc
     req.getConnection((err, connection) => {
         if (err) return next(err)
 
@@ -367,6 +367,26 @@ exports.reSend = (req, res, next) => {
                     message: results,
                     message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
                 })
+
+                request({
+                    method: 'POST',
+                    uri: 'https://notify-api.line.me/api/notify',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    auth: {
+                      'bearer': tokenLineLab
+                    },
+                    form: {
+                      message: `Resend from production order ${ProductName} specific ${Spc} `
+                    }
+                  }, (err, httpResponse, body) => {
+                    if(err){
+                      console.log(err);
+                    } else {
+                    }
+                  });
+
             }
         })
     })
@@ -504,7 +524,6 @@ exports.readOrdertoCheck = (req, res, next) => {
     })
 }
 
-
 exports.urgentOrders = (req, res, next) => {
     var {
         body
@@ -579,8 +598,6 @@ exports.addRealTimeOrder = (req, res, next) => {
         })
     }) 
 }
-
-
 
 exports.readRecheckOrder = (req, res, next) => {
     var {
@@ -1390,7 +1407,11 @@ exports.Recheck = (req, res, next) => {
     var idOrders    = body.idOrders
     var Recheck    = body.Recheck
     Recheck = Recheck+1
-    
+    var ProductName = body.ProductName
+    var listRecheck = body.listRecheck
+
+    // console.log('ProductName : ', ProductName)
+    // console.log('listRecheck : ', listRecheck)
     req.getConnection((err, connection) => {
         if (err) return next(err)
 
@@ -1414,6 +1435,25 @@ exports.Recheck = (req, res, next) => {
                                 message: results,
                                 message_th: "ทำการแก้ไขข้อมูล order ลงรายงการเรียบร้อย"
                             })
+
+                            request({
+                                method: 'POST',
+                                uri: 'https://notify-api.line.me/api/notify',
+                                headers: {
+                                  'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                auth: {
+                                  'bearer': tokenLineProduction
+                                },
+                                form: {
+                                  message: `Order ${ProductName} status recheck ==> { ${listRecheck.toString()} } `
+                                }
+                              }, (err, httpResponse, body) => {
+                                if(err){
+                                  console.log(err);
+                                } else {
+                                }
+                              });
                         }
                     })
                 })
