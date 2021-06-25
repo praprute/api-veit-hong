@@ -58,6 +58,8 @@ exports.addOrder = (req, res, next) => {
     var AN          = body.AN
     var Acidity     = body.Acidity
     var Viscosity   = body.Viscosity
+    var SaltMeter   = body.SaltMeter
+    var Color       = body.Color
 
     var Micro       = body.Micro
 
@@ -72,6 +74,8 @@ exports.addOrder = (req, res, next) => {
         {component: 'AN' , value: body.AN},
         {component: 'Acidity' , value: body.Acidity},
         {component: 'Viscosity' , value: body.Viscosity},
+        {component: 'Salt Meter' , value: body.SaltMeter},
+        {component: 'Color' , value: body.Color},
     ]
 
     // console.log(body)
@@ -79,9 +83,9 @@ exports.addOrder = (req, res, next) => {
     // console.log('add order : ', body)
     req.getConnection((err, connection) => {
         if (err) return next(err)
-        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority, Tn, PH, Salt, Tss , Histamine, Spg, Aw, Micro, AN, Acidity, Viscosity) \
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?, ?, ?, ?)"
-        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority ,Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro, AN, Acidity, Viscosity] , (err, results) => {
+        var sql = "INSERT INTO `jaw-app`.`Orders` ( PORD, BBE, PO, ProductName, Size, Quantity , idScfChem, idScfMicro, Priority, Tn, PH, Salt, Tss , Histamine, Spg, Aw, Micro, AN, Acidity, Viscosity, SaltMeter, Color) \
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?, ?, ?, ?, ? , ?)"
+        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority ,Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro, AN, Acidity, Viscosity, SaltMeter,Color] , (err, results) => {
             if(err){
                 return next(err)
             }else{
@@ -99,12 +103,11 @@ exports.addOrder = (req, res, next) => {
                     var sql ="INSERT INTO `jaw-app`.`testResults` \
                      ( `Recheck`, `idSpfChem`, \
                     `Tn`, `PH`, `Salt`, `Tss`, \
-                    `Histamine`, `SPGTest`, `Aw`, `AN`, `Acidity`, `Viscosity`,\
-                    `idSpfMicro`, `APC`, \
+                    `Histamine`, `SPGTest`, `Aw`, `AN`, `Acidity`, `Viscosity`,`SaltMeter`, `Color` , `idSpfMicro`, `APC`, \
                     `Yeasts`, `EColi`, `Coliform`, \
-                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG`,  `TnC`, `PHC`, `SaltC`, `TssC`, `HistamineC`, `SpgC`, `AwC`, `MicroC`, `ANC`, `AcidityC`, `ViscosityC` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ?, ?, ?, ?, ?, ?, ?, ?, ? ) ; "
-                     connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, null, null, null,  idmicro, null, null, null, null,
-                        null, idOrders, null , null , null, null, Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro, AN, Acidity, Viscosity
+                    `Saureus`, `idOrderTested`, `tempPH` ,`tempAW` ,`tempTss` ,`tempSPG`,  `TnC`, `PHC`, `SaltC`, `TssC`, `HistamineC`, `SpgC`, `AwC`, `MicroC`, `ANC`, `AcidityC`, `ViscosityC`, `SaltMeterC`, `ColorC` ) VALUES ( ?,?,?, ? , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ? , ?, ?, ?, ?, ?, ?, ?, ?, ? ) ; "
+                     connection.query(sql, [ 0, idchem, null, null, null, null, null, null, null, null, null, null, null, null, idmicro, null, null, null, null,
+                        null, idOrders, null , null , null, null, Tn, PH, Salt, Tss, Histamine, SPG, Aw, Micro, AN, Acidity, Viscosity, SaltMeter, Color
                     ], (err, results) => {
                         if(err){
                             return next(err)
@@ -317,19 +320,22 @@ exports.updateOrder = (req, res, next) => {
     var Acidity     = body.Acidity
     var Viscosity   = body.Viscosity
 
+    var SaltMeter     = body.SaltMeter
+    var Color   = body.Color
+
     req.getConnection((err, connection) => {
         if (err) return next(err)
 
         var sql = "UPDATE `jaw-app`.`Orders` SET  PORD=?, BBE=?, PO=?, ProductName=?, Size=?, Quantity=?, idScfChem=?, idScfMicro=?, Priority=? ,Tn=? , PH =? , Salt=?, Tss=?, Histamine=?, Spg=?, Aw=? ,Micro=? ,\
-        AN=?, Acidity=?, Viscosity=? WHERE idOrders=?"
-        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority, Tn, PH, Salt, Tss, Histamine, SPG, Aw , Micro, AN, Acidity, Viscosity, idOrders] , (err, results) => {
+        AN=?, Acidity=?, Viscosity=?, SaltMeter=? , Color=? WHERE idOrders=?"
+        connection.query(sql,[pord , bbe ,po ,productname,size,quantity,idchem  ,idmicro ,priority, Tn, PH, Salt, Tss, Histamine, SPG, Aw , Micro, AN, Acidity, Viscosity,SaltMeter,Color, idOrders] , (err, results) => {
             if(err){
                 return next(err)
             }else{
                 var sql2 ="UPDATE `jaw-app`.`testResults` SET  \
                             TnC = ? , PHC =? , SaltC = ? , TssC = ?, \
-                            HistamineC = ? , SpgC = ?, AwC = ?, ANC = ?, AcidityC = ?, ViscosityC = ? ,MicroC=? WHERE idOrderTested = ? "
-                    connection.query(sql2, [Tn, PH, Salt, Tss, Histamine, SPG, Aw , AN, Acidity, Viscosity, Micro, idOrders], (err, results) => {
+                            HistamineC = ? , SpgC = ?, AwC = ?, ANC = ?, AcidityC = ?, ViscosityC = ?, SaltMeterC = ?, ColorC = ? ,MicroC=? WHERE idOrderTested = ? "
+                    connection.query(sql2, [Tn, PH, Salt, Tss, Histamine, SPG, Aw , AN, Acidity, Viscosity, ,SaltMeter,Color, Micro, idOrders], (err, results) => {
                         if(err){
                             return next(err)
                         }else{
@@ -1000,6 +1006,8 @@ exports.Addtestreport = (req, res, next) => {
     var AN          = body.AN
     var Acidity     = body.Acidity
     var Viscosity   = body.Viscosity
+    var SaltMeter   = body.SaltMeter
+    var Color       = body.Color
 
     var idSpfMicro  = body.idSpfMicro 
     var APC         = body.APC 
@@ -1030,10 +1038,10 @@ exports.Addtestreport = (req, res, next) => {
         Histamine = ? , SPGTest = ?, Aw = ?, \
         idSpfMicro = ?, APC = ?, \
         Yeasts = ?, EColi = ?, Coliform = ? , \
-        Saureus = ? , tempPH = ? , tempAW = ? , tempTss = ?  , tempSPG = ? , AN = ?, Acidity = ?, Viscosity = ? WHERE idOrderTested = ? "
+        Saureus = ? , tempPH = ? , tempAW = ? , tempTss = ?  , tempSPG = ? , AN = ?, Acidity = ?, Viscosity = ?, SaltMeter=?, Color=?  WHERE idOrderTested = ? "
          connection.query(sql, [ Recheck, idSpfChem, Tn,
         PH, Salt, Tss, Histamine, SPG, Aw, idSpfMicro, APC, Yeasts, EColi, Coliform,
-        Saureus, TempPH , TempAW , TempTSS, TempSPG, AN, Acidity, Viscosity, idOrders
+        Saureus, TempPH , TempAW , TempTSS, TempSPG, AN, Acidity, Viscosity, SaltMeter, Color, idOrders
         ], (err, results) => {
             if(err){
                 return next(err)
@@ -1245,7 +1253,42 @@ function testResult(index){
                 }
                 TestedIndex.push(Viscosity)
             }
-            
+
+            //SaltMeter
+            if(index.SaltMeter == null){
+                let SaltMeter = {
+                    render:index.SaltMeterC ,int:false , coa:false , val:index.SaltMeter, valSaltMeter:index.SaltMeter , key:'Salt Meter' , temp:false ,keyInput:"SaltMeter", tkTemp:false
+                }
+                TestedIndex.push(SaltMeter)
+            }else if(index.SaltMeter >= index.SaltMeterMin && index.SaltMeter <= index.SaltMeterMax){
+                let SaltMeter = {
+                    render:index.SaltMeterC ,int:true , coa:true , val:index.SaltMeter, valSaltMeter:index.SaltMeter, key:'Salt Meter' , temp:false ,keyInput:"SaltMeter", tkTemp:false
+                }
+                TestedIndex.push(SaltMeter)
+            }else{
+                let SaltMeter = {
+                    render:index.SaltMeterC ,int:false , coa:false , val:index.SaltMeter, valSaltMeter:index.SaltMeter , key:'Salt Meter' , temp:false ,keyInput:"SaltMeter", tkTemp:false
+                }
+                TestedIndex.push(SaltMeter)
+            }
+
+            //Color
+            if(index.Color == null){
+                let Color = {
+                    render:index.ColorC ,int:false , coa:false , val:index.Color, valColor:index.Color , key:'Color' , temp:false ,keyInput:"Color", tkTemp:false
+                }
+                TestedIndex.push(Color)
+            }else if(index.Color >= index.ColorMin && index.Color <= index.ColorMax){
+                let Color = {
+                    render:index.ColorC ,int:true , coa:true , val:index.Color, valColor:index.Color, key:'Color' , temp:false ,keyInput:"Color", tkTemp:false
+                }
+                TestedIndex.push(Color)
+            }else{
+                let Color = {
+                    render:index.ColorC ,int:false , coa:false , val:index.Color, valColor:index.Color , key:'Color' , temp:false ,keyInput:"Color", tkTemp:false
+                }
+                TestedIndex.push(Color)
+            }
 
             var bio = [] 
             // APC
