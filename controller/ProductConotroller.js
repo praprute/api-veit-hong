@@ -1765,7 +1765,7 @@ exports.exportCOA = (req, res, next) => {
         if (err){
             return next(err)
         }else{
-            imageToBase64("https://jaw.sgp1.digitaloceanspaces.com/Logo-RFS.png") // Path to the image
+            imageToBase64("https://jaw.sgp1.digitaloceanspaces.com/veitlogo.jpg") // Path to the image
         .then(
             (response) => {
                 res.json({
