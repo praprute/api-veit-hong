@@ -152,7 +152,7 @@ exports.addOrder = (req, res, next) => {
                                                   'bearer': tokenLineLab
                                                 },
                                                 form: {
-                                                  message: `มีการส่งตัวอย่างชื่อ ${productname} สูตร ${JSON.stringify(results3[0].name)} ต้องทำการตรวจวัด ${messageSampleObject.toString().trim()}`
+                                                  message: `มีการส่งตัวอย่างชื่อ ${productname} สูตร ${JSON.stringify(results3[0].name)} ต้องทำการตรวจวัด ${messageSampleObject.toString().trim()} (เวียดฮง)`
                                                 }
                                               }, (err, httpResponse, body) => {
                                                 if(err){
@@ -1492,7 +1492,7 @@ exports.Recheck = (req, res, next) => {
                                   'bearer': tokenLineProduction
                                 },
                                 form: {
-                                  message: `Order ${ProductName} status recheck ==> { ${listRecheck.toString()} } `
+                                  message: `Order ${ProductName} status recheck ==> { ${listRecheck.toString()} } (เวียดฮง)`
                                 }
                               }, (err, httpResponse, body) => {
                                 if(err){
@@ -1884,7 +1884,7 @@ exports.PassToCheck = (req, res, next) => {
                             'bearer': tokenLineProduction
                           },
                           form: {
-                            message: `${pn} status complete check `
+                            message: `${pn} status complete check (เวียดฮง)`
                           }
                         }, (err, httpResponse, body) => {
                           if(err){
